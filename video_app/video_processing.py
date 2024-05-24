@@ -25,7 +25,7 @@ def predict_single_action(video_file_path, SEQUENCE_LENGTH):
     for frame_counter in range(SEQUENCE_LENGTH):
         video_reader.set(cv.CAP_PROP_POS_FRAMES, frame_counter * skip_frames_window)
         success, frame = video_reader.read()
-        print(success, frame)
+        # print(success, frame)
         if not success:
             return "error readind the video"
         resized_frame = cv.resize(frame, (IMAGE_HEIGHT, IMAGE_WIDTH))

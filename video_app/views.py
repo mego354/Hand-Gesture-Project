@@ -12,6 +12,7 @@ import numpy as np
 import mediapipe as mp
 import threading
 from moviepy.editor import VideoFileClip, AudioFileClip
+# <!-- video_app/templates/video_app/result.html -->
 
 # Global variables to manage recording state
 recording = False
@@ -164,7 +165,7 @@ def get_latest_video(request):
     except Exception as e:
         return render(request, 'video_app/response.html',{
                     'predicted_texts': predicted_texts_reversed,
-                    'error': 'An error occurred',
+                    'error': 'Empty',
                     })
 
     # Ensure proper closure of files
@@ -186,3 +187,33 @@ def detect_refresh(request):
 
     else:
         return JsonResponse({"statue":False}, safe=False)
+    
+def api_upload_video(request):
+    if request.method == 'POST':
+        form = VideoUploadForm(request.POST, request.FILES)
+        if form.is_valid():
+            video_file = request.FILES['video']
+            file_path = os.path.join(settings.MEDIA_ROOT, video_file.name)
+            with open(file_path, 'wb+') as destination:
+                for chunk in video_file.chunks():
+                    destination.write(chunk)
+            text = predict_single_action(file_path, 40)  # Adjust SEQUENCE_LENGTH as needed
+            if text in VIDEO_PATHS:
+                video_path = VIDEO_PATHS[text]
+                if os.path.exists(video_path):
+
+                    # video = open(video_path, 'rb')
+                    # return FileResponse(video, content_type='video/mp4')
+                    video_name = VIDEO_PATHS_MEDIA[text]
+                    last_video_path = request.scheme + '://' + request.get_host() + '/media/' + video_name
+                    return JsonResponse({"statue":True, "text":text, "videosrc":last_video_path}, safe=False)
+                else:
+                    latest_video = {'error': 'Video file does not exist'}
+                    return JsonResponse(latest_video)
+
+            return JsonResponse({"statue":False,"statue":False}, safe=False)
+        else:
+            return JsonResponse({"statue":False}, safe=False)
+    else:
+        form = VideoUploadForm()
+    return render(request, 'video_app/upload.html', {'form': form})

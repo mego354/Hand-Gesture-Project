@@ -24,9 +24,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-(o$uvdj4!*u*98z3hjv0_svk6j4x=0ir5igk@f%pkmc^ez4z+e'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+# settings.py
 
-ALLOWED_HOSTS = []
+# Add your PythonAnywhere hostname to the ALLOWED_HOSTS list
+ALLOWED_HOSTS = ['Projecting.pythonanywhere.com']
+
+# Set DEBUG to False in production
+DEBUG = False
 
 
 # Application definition
@@ -75,10 +79,18 @@ WSGI_APPLICATION = 'myprojectv3.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#     }
+# }
+# settings.py
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
 }
 
@@ -120,7 +132,10 @@ USE_TZ = True
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
+
+# Absolute path to the directory where static files will be collected.
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
