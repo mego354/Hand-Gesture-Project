@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Webcam Stream</title>
+</head>
+<body>
+    <h2>Webcam Stream</h2>
+    <img src="{% url 'webcam_stream' %}" width="640" height="480">
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" name="start">Start Recording</button>
+        <button type="submit" name="stop">Stop Recording</button>
+        <a target="_blank" href="{% url 'get_latest_video' %}">convert<a>
+    </form>
+    <h3>Predicted Texts:</h3>
+    <ul>
+        {% for text in predicted_texts %}
+            <li>{{ text }}</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
