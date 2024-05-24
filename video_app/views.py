@@ -201,11 +201,10 @@ def api_upload_video(request):
             if text in VIDEO_PATHS:
                 video_path = VIDEO_PATHS[text]
                 if os.path.exists(video_path):
-
-                    # video = open(video_path, 'rb')
-                    # return FileResponse(video, content_type='video/mp4')
                     video_name = VIDEO_PATHS_MEDIA[text]
                     last_video_path = request.scheme + '://' + request.get_host() + '/media/' + video_name
+                    print(last_video_path)
+                    # last_video_path = request.scheme + '://' + request.get_host() + '/media/' + video_name
                     return JsonResponse({"statue":True, "text":text, "videosrc":last_video_path}, safe=False)
                 else:
                     latest_video = {'error': 'Video file does not exist'}
