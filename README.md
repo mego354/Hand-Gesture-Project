@@ -7,7 +7,7 @@ REAM the instruction there.
 3. run "python -m pip install --upgrade pip"
 4. restart vscode
 5. run "pip install django"
-6. run "git clone https://github.com/mego354/hand_gestures.git"
+6. run "git clone https://github.com/mego354/hand_gesture.git"
 7. cd hand_gestures (or myprojectv3 as the downloaded folder's name)
 8. run "pip install -r requirements.txt"
 9.restart vscode
