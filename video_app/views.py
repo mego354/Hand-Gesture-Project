@@ -12,7 +12,8 @@ import numpy as np
 import mediapipe as mp
 import threading
 from moviepy.editor import VideoFileClip, AudioFileClip
-# <!-- video_app/templates/video_app/result.html -->
+from django.views.decorators.csrf import csrf_exempt
+
 
 # Global variables to manage recording state
 recording = False
@@ -188,6 +189,7 @@ def detect_refresh(request):
     else:
         return JsonResponse({"statue":False}, safe=False)
     
+@csrf_exempt
 def api_upload_video(request):
     if request.method == 'POST':
         form = VideoUploadForm(request.POST, request.FILES)
@@ -207,10 +209,10 @@ def api_upload_video(request):
                     # last_video_path = request.scheme + '://' + request.get_host() + '/media/' + video_name
                     return JsonResponse({"statue":True, "text":text, "videosrc":last_video_path}, safe=False)
                 else:
-                    latest_video = {'error': 'Video file does not exist'}
+                    latest_video = {'statue': 'Video file does not exist'}
                     return JsonResponse(latest_video)
 
-            return JsonResponse({"statue":False,"statue":False}, safe=False)
+            return JsonResponse({"statue":False,}, safe=False)
         else:
             return JsonResponse({"statue":False}, safe=False)
     else:
