@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Stream Response</title>
+</head>
+<body>
+    <h2>Stream Response</h2>
+    {% if  video_url%}
+    <video style= "width: 80%; height: 400px;" controls>
+        <source src="{{ video_url }}" type="video/mp4">
+        Your browser does not support the video tag.
+    </video>
+    {% endif %}
+    
+    <h3>Predicted Texts:</h3>
+    <ul>
+        {% if error %}
+            <li>Server Message: {{ error }}</li>
+        {% endif %}
+        {% for text in predicted_texts %}
+            <li>{{ text }}</li>
+        {% endfor %}
+    </ul>
+
+    <script>
+        // Function to fetch the URL and refresh the page if the response is true
+        function checkAndRefresh() {
+            fetch('http://127.0.0.1:8000/detect_refresh/')
+                .then(response => response.json()) // Assuming the response is in JSON format
+                .then(data => {
+                    if (data.statue === true) {
+                        // If response is true, refresh the page
+                        location.reload();
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+        }
+
+        // Call checkAndRefresh function initially
+        checkAndRefresh();
+
+        // Set interval to repeat the process every 2 seconds
+        setInterval(checkAndRefresh, 2000); // 2000 milliseconds = 2 seconds
+    </script>
+</body>
+</html>

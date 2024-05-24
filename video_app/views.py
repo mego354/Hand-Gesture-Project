@@ -16,6 +16,7 @@ from moviepy.editor import VideoFileClip, AudioFileClip
 # Global variables to manage recording state
 recording = False
 videoWriter = None
+Refresh = False
 frame_count = 0
 i = 41
 predicted_texts = []
@@ -25,6 +26,12 @@ VIDEO_PATHS = {
     'مع السلامه': os.path.join(settings.BASE_DIR, 'video_app', 'models', 'video2.mp4'),
     'كيف الحال': os.path.join(settings.BASE_DIR, 'video_app', 'models', 'video3.mp4'),
     'مهندس': os.path.join(settings.BASE_DIR, 'video_app', 'models', 'video4.mp4')
+}
+VIDEO_PATHS_MEDIA = {
+    'السلام عليكم': 'video1.mp4',
+    'مع السلامه': 'video2.mp4',
+    'كيف الحال': 'video3.mp4',
+    'مهندس': 'video4.mp4'
 }
 
 def upload_video(request):
@@ -54,7 +61,7 @@ def webcam_stream(request):
     video_frame_limit = 40  # Number of frames to record
 
     def stream_frames():
-        global recording, videoWriter, frame_count, i, predicted_texts
+        global recording, videoWriter, frame_count, i, predicted_texts, Refresh
         while True:
             ret, frame = cap.read()
             if not ret:
@@ -93,7 +100,6 @@ def webcam_stream(request):
                     gray = cv.cvtColor(masked, cv.COLOR_BGR2GRAY)
                     ret, thresh = cv.threshold(gray, 215, 255, cv.THRESH_BINARY_INV)
 
-                # Recording logic
                 if recording:
                     if videoWriter is None:
                         video_path = os.path.join(settings.MEDIA_ROOT, f'{i}.mp4')
@@ -108,6 +114,7 @@ def webcam_stream(request):
                         frame_count = 0
                         videoWriter = None
                         recording = False
+                        Refresh = True
 
             yield (b'--frame\r\n'
                    b'Content-Type: image/jpeg\r\n\r\n' + cv.imencode('.jpg', frame)[1].tobytes() + b'\r\n')
@@ -122,26 +129,60 @@ def webcam_stream_page(request):
             recording = True
         elif 'stop' in request.POST:
             recording = False
-
-    return render(request, 'video_app/stream.html', {'predicted_texts': predicted_texts})
+    predicted_texts_reversed = reversed(predicted_texts)
+    return render(request, 'video_app/stream.html', {'predicted_texts': predicted_texts_reversed})
 
 
         # text = 'predicted_texts[-1]'  # Get the last predicted text dictionary
 def get_latest_video(request):
     global predicted_texts
+    predicted_texts_reversed = reversed(predicted_texts)
+
     try:
         text = predicted_texts[-1]  # Uncomment if you want to use the last predicted text
         if text in VIDEO_PATHS:
             video_path = VIDEO_PATHS[text]
             if os.path.exists(video_path):
-                return FileResponse(open(video_path, 'rb'), content_type='video/mp4')
+                video_name = VIDEO_PATHS_MEDIA[text]
+                last_video_path = request.scheme + '://' + request.get_host() + '/media/' + video_name
+
+                return render(request, 'video_app/response.html',{
+                    'predicted_texts': predicted_texts_reversed,
+                    'video_url': last_video_path
+                    })
+
             else:
-                latest_video = {'error': 'Video file does not exist'}
+                return render(request, 'video_app/response.html',{
+                    'predicted_texts': predicted_texts_reversed,
+                    })
         else:
             latest_video = {'error': 'Text not found in VIDEO_PATHS'}
+            return render(request, 'video_app/response.html',{
+                    'predicted_texts': predicted_texts_reversed,
+                    'error': 'Text not found in VIDEO_PATHS',
+                    })
     except Exception as e:
-        print(e)
-        latest_video = {'error': 'An error occurred'}
+        return render(request, 'video_app/response.html',{
+                    'predicted_texts': predicted_texts_reversed,
+                    'error': 'An error occurred',
+                    })
 
     # Ensure proper closure of files
     return JsonResponse(latest_video)
+
+def detect_refresh(request):
+    global Refresh, predicted_texts
+    if Refresh == True:
+        text = predicted_texts[-1]  # Uncomment if you want to use the last predicted text
+        if text in VIDEO_PATHS:
+            video_path = VIDEO_PATHS[text]
+            if os.path.exists(video_path):
+                video_name = VIDEO_PATHS_MEDIA[text]
+                last_video_path = request.scheme + '://' + request.get_host() + '/media/' + video_name
+
+                Refresh = False
+                return JsonResponse({"statue":True, "text":text, "videosrc":last_video_path}, safe=False)
+        return JsonResponse({"statue":False}, safe=False)
+
+    else:
+        return JsonResponse({"statue":False}, safe=False)
