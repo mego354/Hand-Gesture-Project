@@ -4,7 +4,7 @@ from django.conf import settings
 from django.shortcuts import render
 from django.http import FileResponse, JsonResponse
 from .forms import VideoUploadForm
-from .video_processing import predict_single_action
+from .video_processing import predict_single_action, prepare_video
 from django.http import StreamingHttpResponse
 from django.views.decorators import gzip
 import cv2 as cv
@@ -50,7 +50,7 @@ def upload_video(request):
         return render(request, 'video_app/result.html', {'predicted_text': "error predicted_text error"})
     else:
         form = VideoUploadForm()
-    return render(request, 'video_app/upload.html', {'form': form})
+    return render(request, 'video_app/2', {'form': form})
 
 @gzip.gzip_page
 def webcam_stream(request):
@@ -132,7 +132,7 @@ def webcam_stream_page(request):
         elif 'stop' in request.POST:
             recording = False
     predicted_texts_reversed = reversed(predicted_texts)
-    return render(request, 'video_app/stream.html', {'predicted_texts': predicted_texts_reversed})
+    return render(request, 'video_app/new.html', {'predicted_texts': predicted_texts_reversed})
 
 
         # text = 'predicted_texts[-1]'  # Get the last predicted text dictionary
@@ -217,4 +217,34 @@ def api_upload_video(request):
             return JsonResponse({"statue":False}, safe=False)
     else:
         form = VideoUploadForm()
-    return render(request, 'video_app/upload.html', {'form': form})
+    return render(request, 'video_app/2', {'form': form})
+
+@csrf_exempt
+def upload_raw(request):
+    if request.method == 'POST':
+        form = VideoUploadForm(request.POST, request.FILES)
+        if form.is_valid():
+            video_file = request.FILES['video']
+            file_path = os.path.join(settings.MEDIA_ROOT, video_file.name)
+            with open(file_path, 'wb+') as destination:
+                for chunk in video_file.chunks():
+                    destination.write(chunk)
+            text = prepare_video(file_path)  # Adjust SEQUENCE_LENGTH as needed
+            if text in VIDEO_PATHS:
+                video_path = VIDEO_PATHS[text]
+                if os.path.exists(video_path):
+                    video_name = VIDEO_PATHS_MEDIA[text]
+                    last_video_path = request.scheme + '://' + request.get_host() + '/media/' + video_name
+                    print(last_video_path)
+                    # last_video_path = request.scheme + '://' + request.get_host() + '/media/' + video_name
+                    return JsonResponse({"statue":True, "text":text, "videosrc":last_video_path}, safe=False)
+                else:
+                    latest_video = {'statue': 'Video file does not exist'}
+                    return JsonResponse(latest_video)
+
+            return JsonResponse({"statue":False,}, status=400)
+        else:
+            return JsonResponse({"statue":False}, status=405)
+    else:
+        form = VideoUploadForm()
+    return render(request, 'video_app/upload2.html', {'form': form})

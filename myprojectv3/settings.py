@@ -37,6 +37,7 @@ ALLOWED_HOSTS = [NETWORK_IP , LOCAL_HOST_IP ]
 # Application definition
 
 INSTALLED_APPS = [
+    "sslserver",
     'video_app',
     'django.contrib.admin',
     'django.contrib.auth',

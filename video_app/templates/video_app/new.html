@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Webcam Access with Hand Detection</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/hand-pose-detection"></script>
+    <script src="https://cdn.jsdelivr.net/npm/recordrtc@5.6.1"></script>
+
+    <style>
+        #video {
+            /* visibility: hidden; Hide the video element itself */
+            position: absolute;
+            top: 0;
+            left: 0;
+            transform: scaleX(-1); /* Flip horizontally for non-mirrored display */
+        }
+        #canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            border: 5px solid black; /* Border around the canvas */
+        }
+        #message {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 24px;
+            color: red;
+            display: none; /* Hide by default */
+        }
+    </style>
+</head>
+<body>
+    <h1>Hand Detection Points</h1>
+    <video id="video" width="640" height="480" autoplay></video>
+    <canvas id="canvas" width="640" height="480"></canvas>
+    <div id="message">Please put your hand in front of the camera</div>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <ul id="ul">
+    </ul>
+    <script>
+        const videoElement = document.getElementById('video');
+        const ul = document.getElementById('ul');
+        let startTime = 0; // Variable to store recording start time
+        let recording = false; // Flag to track if recording is in progress
+        let recorder; // Variable to store RecordRTC instance
+
+        async function startVideo() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                videoElement.srcObject = stream;
+                console.log('Video stream started');
+            } catch (error) {
+                console.error('Error accessing webcam:', error);
+            }
+        }
+        function startRecording(stream) {
+            recorder = new RecordRTC(stream, {
+                type: 'video'
+            });
+            recorder.startRecording();
+            recording = true;
+            startTime = Date.now(); // Capture the start time
+            console.log('Recording started');
+            const recordingLength = 6000;
+            setTimeout(() => {
+                recorder.stopRecording(() => {
+                    const blob = recorder.getBlob();
+                    const formData = new FormData();
+                    formData.append('video', blob, 'hand-detection-video.mp4');
+            
+                    fetch('/upload_raw/', {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-CSRFToken': getCookie('csrftoken')  // Ensure you have a function to retrieve CSRF token
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if(data.statue === true)
+                        {
+                            li = document.createElement('li');
+                            li.innerHTML = data.text;
+                            ul.appendChild(li);
+                        }
+                        console.log('Video uploaded successfully:', data);
+                    })
+                    .catch(error => {
+                        console.error('Error uploading video:', error);
+                    });
+                    recording = false;
+                    console.log('Recording stopped and sent to server');
+
+                    {% comment %} const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.style.display = 'none';
+                    a.href = url;
+                    a.download = 'hand-detection-video';
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    recording = false;
+                    const elapsedTime = Date.now() - startTime;
+                    console.log(elapsedTime)
+                    console.log('Recording stopped and saved'); {% endcomment %}
+
+                });
+            }, recordingLength);
+
+        }
+        function stopRecording() {
+            recorder.stopRecording(() => {
+                const blob = recorder.getBlob();
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.style.display = 'none';
+                a.href = url;
+                a.download = 'hand-detection-video.mp4';
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                recording = false;
+                console.log('Recording stopped and saved');
+            });
+        }
+        async function runHandDetection() {
+            const video = document.getElementById('video');
+            const canvas = document.getElementById('canvas');
+            const context = canvas.getContext('2d');
+            const message = document.getElementById('message');
+
+            // Load the MediaPipe Hands model.
+            const model = await handPoseDetection.createDetector(handPoseDetection.SupportedModels.MediaPipeHands, {
+                runtime: 'tfjs',
+                modelType: 'full'
+            });
+            console.log('MediaPipe Hands model loaded');
+
+            // Continuously detect hands.
+            {% comment %} if (recording && Date.now() - startTime >= 4000) {
+                stopRecording(); // Stop recording after 4 seconds
+            } {% endcomment %}
+
+            async function detectHands() {
+                const predictions = await model.estimateHands(video);
+                {% comment %} console.log('Predictions:', predictions); {% endcomment %}
+
+                context.clearRect(0, 0, canvas.width, canvas.height);
+                if (predictions.length > 0) {
+                    if (!recording) {
+                        const stream = videoElement.srcObject;
+                        startRecording(stream);
+                    }
+                    message.style.display = 'none'; // Hide message if hands are detected
+                    predictions.forEach(prediction => {
+                        const landmarks = prediction.keypoints;
+
+                        // Draw the hand keypoints.
+                        landmarks.forEach(landmark => {
+                            const { x, y } = landmark;
+                            // Adjust x to non-mirrored position
+                            const adjustedX = canvas.width - x;
+                            context.beginPath();
+                            context.arc(adjustedX, y, 5, 0, 2 * Math.PI);
+                            context.fillStyle = 'red';
+                            context.fill();
+                        });
+                    });
+                } else {
+                    message.style.display = 'block'; // Show message if no hands are detected
+                }
+
+                requestAnimationFrame(detectHands);
+            }
+
+            detectHands();
+        }
+
+        window.onload = () => {
+            startVideo();
+            runHandDetection();
+        };
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.startsWith(name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+    </script>
+</body>
+</html>
