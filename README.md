@@ -1,7 +1,6 @@
 # Hand Gesture Recognition Project 
 
 ## Usage Guide
-
 ### Installation
 
 1. **Install Python 3.8.0:**
@@ -19,10 +18,10 @@
    - Run `pip install django`.
 
 5. **Clone the Project Repository:**
-   - Run `git clone https://github.com/mego354/hands.git`.
+   - Run `git clone https://github.com/mego354/Hand-Gesture.git`.
 
 6. **Navigate to Project Directory:**
-   - Change directory to `hands` e.g. `cd hands`.
+   - Change directory to `Hand-Gesture` e.g. `cd Hand-Gesture`.
 
 7. **Install Requirements:**
    - Run `pip install -r requirements.txt`.
