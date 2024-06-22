@@ -1,89 +1,106 @@
-USAGE FROM A to Z
+# Hand Gesture Recognition Project 
 
-1. Instal PYTHON 3.8.0
-choose the propriate version for your os from the officail site: https://www.python.org/downloads/release/python-380/
-REAM the instruction there.
-2. open vscode and run this command "python --version" if it's  3.8.0, continue if not restart vscode
-3. run "python -m pip install --upgrade pip"
-4. restart vscode
-5. run "pip install django"
-6. run "git clone https://github.com/mego354/hand_gesture.git"
-7. cd hand_gestures (or myprojectv3 as the downloaded folder's name)
-8. run "pip install -r requirements.txt"
-9.restart vscode
-10.open CMD run "ifconfig" and look for ipv4 and save it's address for now 
-11. cd hand_gestures (or myprojectv3 as the downloaded folder's name)
-12. get the file myprojectv3/settings.py line 28 paste the address
-13. get your network IP paste it for line 29 "NETWORK_IP"
-11. run "python manage.py runserver ipv4_Adress:8000 ", 
+## Usage Guide
 
-if your laptop’s IP address is 192.168.1.100, use the following command:
-bash
-run "python manage.py runserver 192.168.1.100:8000"
+### Installation
 
-NOW THE SITE SHOULD BE WORKING ON !!!!!!!!!
+1. **Install Python 3.8.0:**
+   - Choose the appropriate version for your OS from the official site: [Python 3.8.0 Downloads](https://www.python.org/downloads/release/python-380/)
+   - Follow the installation instructions provided.
 
-to unable system firewall on the local host device:
+2. **Verify Python Installation in VS Code:**
+   - Open VS Code and run `python --version`.
+   - Ensure the version displayed is `3.8.0`. If not, restart VS Code.
 
+3. **Upgrade Pip:**
+   - Run `python -m pip install --upgrade pip`.
 
-Windows:
-Open Command Prompt by pressing Win + R, typing cmd, and hitting Enter.
-In the Command Prompt, type ipconfig and press Enter.
-Look for the "IPv4 Address" under the active network connection. It will look something like 192.168.1.xxx.
+4. **Install Django:**
+   - Run `pip install django`.
 
+5. **Clone the Project Repository:**
+   - Run `git clone https://github.com/mego354/hands.git`.
 
+6. **Navigate to Project Directory:**
+   - Change directory to `hands` e.g. `cd hands`.
 
-1. to Open Windows Defender Firewall and Advanced Settings
+7. **Install Requirements:**
+   - Run `pip install -r requirements.txt`.
 
-2. Press Win + R to open the Run dialog.
-3. Type wf.msc and press Enter. This opens the Windows Defender Firewall with Advanced Security.
+### Configuration
 
-Create a New Inbound Rule
+1. **Set Up IP Address:**
+   - Obtain your IPv4 address by running `ipconfig` in the command prompt "for API using".
+### Running the Development Server
 
-4. In the left pane, click on "Inbound Rules."
-5. In the right pane, click on "New Rule..." This opens the New Inbound Rule Wizard.
-6. Configure the Rule
-7. Rule Type: Select "Port" and click Next.
+1. **Start the Django Server:**
+   - In the command prompt, run:
+     ```
+     python manage.py runserver ipv4_address:8000
+     ```
+   - Replace `ipv4_address` with your IPv4 address.
 
-Protocol and Ports:
+   Example:
+   ```
+   python manage.py runsslserver 0.0.0.0:8000
+   ```
 
-8. Select "TCP."
-9. Select "all local ports"
-Click Next.
+### Firewall Configuration (Local Host Device)
 
-Action:
+#### For Windows:
 
-10.select "Allow the connection."
-Click Next.
+1. **Open Windows Defender Firewall and Advanced Settings:**
+   - Press `Win + R` to open the Run dialog.
+   - Type `wf.msc` and press Enter.
 
-Profile:
-Click Next.
-Name:
-Give the rule a name, such as "Django Development Server."
-Optionally, provide a description.
-Click Finish.
+2. **Create a New Inbound Rule:**
+   - In the left pane, click on **Inbound Rules**.
+   - Click **New Rule...** to open the wizard.
 
-now on the other device to access the page
-on a new tab write this url "ipv4_Adress:8000", 
+3. **Configure the Rule:**
+   - Rule Type: Select **Port** and click Next.
+   - Protocol and Ports: Select **TCP** and **Specific local ports**, enter `8000`.
+   - Action: Select **Allow the connection**.
+   - Profile: Leave all options checked and click Next.
+   - Name: Provide a name like "Django Development Server".
+   - Click **Finish** to complete.
 
-if your main laptop’s IP address is 192.168.1.100, use the following command:
+### Accessing the Application
 
-url =  192.168.1.100:8000
+- On any device, open a web browser and enter the following URL:
+  ```
+  https://ipv4_address:8000/
+  ```
+  Replace `ipv4_address` with the IPv4 address of the main laptop.
 
-app's routes:
-main route is the stream:  192.168.1.100:8000 + ""
-to get the response (the other person window): 192.168.1.100:8000 + get_latest_video/
-<!--                                                  -->
+  Example:
+  ```
+  https://192.168.1.5:8000/
+  ```
 
-API: 192.168.1.100:8000 + upload/
-the uploaded video name: "video" 
+### Application Routes
 
-the response will be json data as:
+- Main Route (choose eaither Deaf or Normal): `ipv4_address:8000`
+- Deaf Route (Live Stream): `ipv4_address:8000/stream/`
+- To Get the Response (Other Person's Window): `ipv4_address:8000/response/`
+- API Endpoint: `ipv4_address:8000/upload/`
 
-{"statue":True, "text":text, "videosrc":last_video_path}
-or:
-{"statue":False}
+### API Response
 
-first check statue if true you are free to use the last_video_path to access the VIDEO
+- Upload a video with the parameter name "video".
+- Response JSON:
+  ```json
+  {
+    "status": true,
+    "text": "text",
+    "videosrc": "last_video_path"
+  }
+  ```
+  or
+  ```json
+  {
+    "status": false
+  }
+  ```
+  Check `status`; if `true`, use `videosrc` to access the video.
 
-DONE!

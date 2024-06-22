@@ -1,22 +1,183 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Webcam Stream</title>
-</head>
-<body>
-    <h2>Webcam Stream</h2>
-    <img src="{% url 'webcam_stream' %}" width="640" height="480">
-    <form method="post">
-        {% csrf_token %}
-        <button type="submit" name="start">Start Recording</button>
-        <button type="submit" name="stop">Stop Recording</button>
-        <a target="_blank" href="{% url 'get_latest_video' %}">convert<a>
-    </form>
-    <h3>Predicted Texts:</h3>
-    <ul>
-        {% for text in predicted_texts %}
-            <li>{{ text }}</li>
-        {% endfor %}
-    </ul>
-</body>
-</html>
+{% extends "video_app/main.html" %}
+{% load static %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/hand-pose-detection"></script>
+<script src="https://cdn.jsdelivr.net/npm/recordrtc@5.6.1"></script>
+{% endblock scripts %}
+
+{% block body %}
+    <div class="mt-3 mb-3 page_title_holder">
+        <h1 class="page_title">Hand Detection Points</h1>
+    </div>
+
+    <div id="stream_con">
+        <video id="video" width="640" height="480" autoplay></video>
+        <canvas id="canvas" width="640" height="480"></canvas>
+        <div id="message">Please put your hand in front of the camera</div>
+    </div>
+
+    <div class="mt-3 mb-3 page_title_holder">
+        <h1 class="page_title">Predicted Texts:</h1>
+    </div>
+    <div class="list list-group list-group-flush">
+        <h2 class="list-group-item">Statue: <span id="statue_span"></span> </h2>
+        <ul id="ul">
+        
+            {% for text in texts %}
+                <li class="list-group-item">{{ text }}</li>
+            {% endfor %}
+
+        </ul>
+    </div>
+
+    <script>
+        const videoElement = document.getElementById('video');
+        const statue_span = document.getElementById('statue_span');
+        const ul = document.getElementById('ul');
+        let startTime = 0; // Variable to store recording start time
+        let recording = false; // Flag to track if recording is in progress
+        let recorder; // Variable to store RecordRTC instance
+
+        async function startVideo() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                videoElement.srcObject = stream;
+                console.log('Video stream started');
+                statue_span.innerHTML="Starting"
+            } catch (error) {
+                console.error('Error accessing webcam:', error);
+            }
+        }
+        function startRecording(stream) {
+            recorder = new RecordRTC(stream, {
+                type: 'video'
+            });
+            recorder.startRecording();
+            recording = true;
+            startTime = Date.now(); // Capture the start time
+            console.log('Recording started');
+            statue_span.innerHTML="Recording Hand Gesture"
+            const recordingLength = 6000;
+            setTimeout(() => {
+                recorder.stopRecording(() => {
+                    const blob = recorder.getBlob();
+                    const formData = new FormData();
+                    formData.append('video', blob, 'hand-detection-video.mp4');
+                    statue_span.innerHTML="Loading"
+            
+                    fetch('/upload/', {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-CSRFToken': getCookie('csrftoken')
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if(data.statue === true)
+                        {
+                            li = document.createElement('li');
+                            li.innerHTML = data.text;
+                            li.className= "list-group-item";
+                            ul.prepend(li);
+                            statue_span.innerHTML="Success"
+                        }
+                        else{
+                            statue_span.innerHTML="Not recognized gesture"
+                        }
+                        setTimeout(() => {
+                            recording = false;
+                            statue_span.innerHTML="Reading"
+    
+                        }, 2000);    
+                    })
+                    .catch(error => {
+                        statue_span.innerHTML="Error uploading video"
+
+                    });
+
+                    setTimeout(() => {
+                        recording = false;
+                        statue_span.innerHTML="Reading"
+
+                    }, 2000);
+
+                });
+            }, recordingLength);
+
+        }
+        async function runHandDetection() {
+            const video = document.getElementById('video');
+            const canvas = document.getElementById('canvas');
+            const context = canvas.getContext('2d');
+            const message = document.getElementById('message');
+
+            // Load the MediaPipe Hands model.
+            const model = await handPoseDetection.createDetector(handPoseDetection.SupportedModels.MediaPipeHands, {
+                runtime: 'tfjs',
+                modelType: 'full'
+            });
+            console.log('MediaPipe Hands model loaded');
+            statue_span.innerHTML="Reading"
+
+
+
+            // Continuously detect hands.
+            async function detectHands() {
+                const predictions = await model.estimateHands(video);
+
+                context.clearRect(0, 0, canvas.width, canvas.height);
+                if (predictions.length > 0) {
+                    if (!recording) {
+                        const stream = videoElement.srcObject;
+                        startRecording(stream);
+                    }
+                    message.style.display = 'none'; // Hide message if hands are detected
+                    predictions.forEach(prediction => {
+                        const landmarks = prediction.keypoints;
+
+                        // Draw the hand keypoints.
+                        landmarks.forEach(landmark => {
+                            const { x, y } = landmark;
+                            // Adjust x to non-mirrored position
+                            const adjustedX = canvas.width - x;
+                            context.beginPath();
+                            context.arc(adjustedX, y, 5, 0, 2 * Math.PI);
+                            context.fillStyle = 'red';
+                            context.fill();
+                        });
+                    });
+                } else {
+                    if (!recording){
+                        message.style.display = 'block'; // Show message if no hands are detected
+                    }
+                }
+
+                requestAnimationFrame(detectHands);
+            }
+
+            detectHands();
+        }
+
+        window.onload = () => {
+            startVideo();
+            runHandDetection();
+        };
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.startsWith(name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+    </script>
+{% endblock body %}

@@ -2,11 +2,11 @@
 import os
 import cv2 as cv
 import numpy as np
-import tensorflow as tf
 from django.conf import settings
 import mediapipe as mp
 
 # Define the path to the model file
+import tensorflow as tf
 model_path = os.path.join(settings.BASE_DIR, 'video_app', 'models', 'cconvlstm_model___Date_Time_2024_05_04__12_43_00___Loss_0.016002826392650604___Accuracy_1.0.h5')
 
 model = tf.keras.models.load_model(model_path)

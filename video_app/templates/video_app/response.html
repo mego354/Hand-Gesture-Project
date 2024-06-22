@@ -1,31 +1,44 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Stream Response</title>
-</head>
-<body>
-    <h2>Stream Response</h2>
-    {% if  video_url%}
-    <video style= "width: 80%; height: 400px;"  controls>
-        <source src="{{ video_url }}" type="video/mp4">
-        Your browser does not support the video tag.
-    </video>
-    {% endif %}
-    
-    <h3>Predicted Texts:</h3>
-    <ul>
-        {% if error %}
-            <li>Server Message: {{ error }}</li>
-        {% endif %}
-        {% for text in predicted_texts %}
-            <li>{{ text }}</li>
-        {% endfor %}
-    </ul>
+{% extends "video_app/main.html" %}
+{% load static %}
+
+{% block body %}
+<div class="mt-3 mb-3 page_title_holder">
+    <h1 class="page_title">Stream Response</h1>
+</div>
+
+{% if  video_url%}
+    <div class="response_vid">
+        <video style= "width: 80%; height: 400px;"  controls>
+            <source src="{{ video_url }}" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+    </div>
+{% endif %}
+    <hr>
+
+    <div class="mt-3 mb-3 page_title_holder">
+        <h1 class="page_title">Predicted Texts:</h1>
+    </div>
+
+    <div class="list list-group list-group-flush">
+        <ul>
+            {% if error %}
+                <li class="list-group-item text-danger">Server Message: {{ error }}</li>
+            {% endif %}
+            {% for text in predicted_texts %}
+                <li class="list-group-item">{{ text }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+
+
+
+
 
     <script>
         // Function to fetch the URL and refresh the page if the response is true
         function checkAndRefresh() {
-            fetch('http://127.0.0.1:8000/detect_refresh/')
+            fetch('/detect_refresh/')
                 .then(response => response.json()) // Assuming the response is in JSON format
                 .then(data => {
                     if (data.statue === true) {
@@ -43,4 +56,5 @@
         setInterval(checkAndRefresh, 2000); // 2000 milliseconds = 2 seconds
     </script>
 </body>
-</html>
+{% endblock body %}
+
