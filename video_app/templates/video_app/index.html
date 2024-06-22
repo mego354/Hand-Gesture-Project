@@ -1,0 +1,14 @@
+{% extends "video_app/main.html" %}
+{% load static %}
+
+
+{% block body %}
+    <div class="mt-3 mb-3 page_title_holder">
+        <h1 class="page_title">index</h1>
+    </div>
+    <div class="index_button">
+        <a href={% url 'stream' %} class="btn btn-outline-danger" >Deaf</a>
+        <a href={% url 'response' %} class="btn btn-outline-success" >Normal</a>
+    </div>
+
+{% endblock body %}
