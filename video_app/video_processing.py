@@ -18,7 +18,6 @@ IMAGE_HEIGHT, IMAGE_WIDTH = 64, 64
 i = 1
 success = False
 def predict_single_action(video_file_path, SEQUENCE_LENGTH):
-    # video_file_path = os.path.join(settings.BASE_DIR, 'media', 'z.mp4')
     video_reader = cv.VideoCapture(video_file_path)
     frames_list = []
 
@@ -43,7 +42,7 @@ def predict_single_action(video_file_path, SEQUENCE_LENGTH):
     return predicted_class_name
 ##########################################
 def prepare_video(video):
-    global i, success
+    global success
     mpHands = mp.solutions.hands
     hands = mpHands.Hands()
     mpDraw = mp.solutions.drawing_utils
@@ -52,7 +51,7 @@ def prepare_video(video):
     w = int(cap.get(cv.CAP_PROP_FRAME_WIDTH))
     h = int(cap.get(cv.CAP_PROP_FRAME_HEIGHT))
     frame_count = 0
-    video_path = os.path.join(settings.MEDIA_ROOT, f'r{i}.mp4')
+    video_path = os.path.join(settings.MEDIA_ROOT, 'hand gesture.mp4')
     videoWriter = cv.VideoWriter(video_path, cv.VideoWriter_fourcc(*'H264'), 10, (w, h), False)
     while True:
         ret, frame = cap.read()
@@ -104,8 +103,36 @@ def prepare_video(video):
         else:
             print("pass")
             pass
+
     if success:
         success = False
         return predict_single_action(video_path, 40)
     else:
         return None
+
+
+def concatenate_videos(video_filenames):
+    video_clips = [cv.VideoCapture(filename) for filename in video_filenames]
+    
+    # Get the width, height, and FPS of the first video
+    width = int(video_clips[0].get(cv.CAP_PROP_FRAME_WIDTH))
+    height = int(video_clips[0].get(cv.CAP_PROP_FRAME_HEIGHT))
+    fps = video_clips[0].get(cv.CAP_PROP_FPS)
+    
+    # Create a VideoWriter object
+    output_path = os.path.join(settings.BASE_DIR, 'media', 'concatenated_video.mp4')
+
+    # out = cv.VideoWriter(output_path, cv.VideoWriter_fourcc(*'mp4v'), fps, (width, height))
+    out = cv.VideoWriter(output_path, cv.VideoWriter_fourcc(*'H264'), fps, (width, height), False)
+
+    
+    for clip in video_clips:
+        while True:
+            ret, frame = clip.read()
+            if not ret:
+                break
+            out.write(frame)
+        clip.release()
+    
+    out.release()
+    return output_path
