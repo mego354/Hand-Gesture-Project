@@ -1,7 +1,3 @@
-Certainly! Here's a professionally formatted version for your README file:
-
----
-
 # Hand Gesture Recognition Project
 
 ## Overview
