@@ -4,13 +4,10 @@ import cv2 as cv
 import numpy as np
 from django.conf import settings
 import mediapipe as mp
-
-# Define the path to the model file
 import tensorflow as tf
-model_path = os.path.join(settings.BASE_DIR, 'video_app', 'models', 'cconvlstm_model___Date_Time_2024_05_04__12_43_00___Loss_0.016002826392650604___Accuracy_1.0.h5')
 
+model_path = 'path_to_the_model.h5' # model has been ignored as the team wanted !!
 model = tf.keras.models.load_model(model_path)
-# model = 0
 CLASSES_LIST = ['السلام عليكم', 'كيف الحال', 'مع السلامه', 'مهندس']
 SEQUENCE_LENGTH = 40
 IMAGE_HEIGHT, IMAGE_WIDTH = 64, 64
@@ -121,6 +118,32 @@ def concatenate_videos(video_filenames):
     
     # Create a VideoWriter object
     output_path = os.path.join(settings.BASE_DIR, 'media', 'concatenated_video.mp4')
+
+    # out = cv.VideoWriter(output_path, cv.VideoWriter_fourcc(*'mp4v'), fps, (width, height))
+    out = cv.VideoWriter(output_path, cv.VideoWriter_fourcc(*'H264'), fps, (width, height), False)
+
+    
+    for clip in video_clips:
+        while True:
+            ret, frame = clip.read()
+            if not ret:
+                break
+            out.write(frame)
+        clip.release()
+    
+    out.release()
+    return output_path
+
+def concatenate_letters(letters_filenames, file_name):
+    video_clips = [cv.VideoCapture(filename) for filename in letters_filenames]
+    
+    # Get the width, height, and FPS of the first video
+    width = int(video_clips[0].get(cv.CAP_PROP_FRAME_WIDTH))
+    height = int(video_clips[0].get(cv.CAP_PROP_FRAME_HEIGHT))
+    fps = video_clips[0].get(cv.CAP_PROP_FPS)
+    
+    # Create a VideoWriter object
+    output_path = os.path.join(settings.BASE_DIR, 'media', f'{file_name}.mp4')
 
     # out = cv.VideoWriter(output_path, cv.VideoWriter_fourcc(*'mp4v'), fps, (width, height))
     out = cv.VideoWriter(output_path, cv.VideoWriter_fourcc(*'H264'), fps, (width, height), False)

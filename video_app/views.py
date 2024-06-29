@@ -8,7 +8,7 @@ from django.views.decorators.csrf import csrf_exempt
 from moviepy.editor import VideoFileClip, concatenate_videoclips
 from pydub import AudioSegment
 import speech_recognition as sr
-from .video_processing import predict_single_action, prepare_video, concatenate_videos
+from .video_processing import concatenate_letters, prepare_video, concatenate_videos
 
 # Global variables to manage recording state
 predicted_texts = []
@@ -136,9 +136,9 @@ def upload_text(request):
                     translated_texts = text_input
                     current_vid = 'concatenated_video.mp4'
                     return JsonResponse({"statue":True, "text":text_input, "videosrc":last_video_path}, safe=False)
-            except Exception:
-                return JsonResponse({"statue":False,}, safe=False)
-        return JsonResponse({"statue":False,}, safe=False)
+            except Exception as e:
+                return JsonResponse({"statue":False, "error": e}, safe=False)
+        return JsonResponse({"statue":False, "error": "Invalid form"}, safe=False)
 
     else:
         form = TextInputForm()
@@ -177,8 +177,8 @@ def upload_voice(request):
                     os.remove(audio_file_path)
 
                     return JsonResponse({"statue":True, "text":spoken_text, "videosrc":last_video_path}, safe=False)
-            except Exception:
-                return JsonResponse({"statue":False,}, safe=False)
+            except Exception as e:
+                return JsonResponse({"statue":False, "error": e}, safe=False)
 
         except sr.UnknownValueError:
             return JsonResponse({"status": False, "error": "Could not understand audio"})
@@ -209,6 +209,25 @@ def search_video(text):
             return os.path.join(settings.MEDIA_ROOT, file)
     return None
 
+# def process_text(input_text):
+#     words = input_text.split()
+#     video_filenames = []
+#     for word in words:
+#         video_filename = search_video(word)
+#         if video_filename:
+#             video_filenames.append(video_filename)
+#         else:
+#             word_clips = [VideoFileClip(search_video(char)) for char in word if search_video(char)]
+#             if word_clips:
+#                 concatenated_clip = concatenate_videoclips(word_clips)
+#                 temp_filename = os.path.join(settings.MEDIA_ROOT, f"{word}.mp4")
+#                 concatenated_clip.write_videofile(temp_filename)
+#                 video_filenames.append(temp_filename)
+#     if video_filenames:
+#         return concatenate_videos(video_filenames)
+#     return None
+
+
 def process_text(input_text):
     words = input_text.split()
     video_filenames = []
@@ -217,26 +236,17 @@ def process_text(input_text):
         if video_filename:
             video_filenames.append(video_filename)
         else:
-            word_clips = [VideoFileClip(search_video(char)) for char in word if search_video(char)]
-            if word_clips:
-                concatenated_clip = concatenate_videoclips(word_clips)
-                temp_filename = os.path.join(settings.MEDIA_ROOT, f"{word}.mp4")
-                concatenated_clip.write_videofile(temp_filename)
-                video_filenames.append(temp_filename)
+            letters_videos = []
+            letters = []
+            for letter in word:
+                letter_filename = search_video(letter)
+                if letter_filename:
+                    letters.append(letter)
+                    letters_videos.append(letter_filename)
+            new_word_video = concatenate_letters(letters_videos, str(letters))            
+            video_filenames.append(new_word_video)
+
     if video_filenames:
         return concatenate_videos(video_filenames)
     return None
 
-
-def translate_voice():
-    recognizer = sr.Recognizer()
-    microphone = sr.Microphone()
-    with microphone as source:
-        recognizer.adjust_for_ambient_noise(source)
-        audio = recognizer.listen(source)
-    try:
-        return recognizer.recognize_google(audio, language="ar")
-    except sr.UnknownValueError:
-        return None
-    except sr.RequestError as e:
-        return None
