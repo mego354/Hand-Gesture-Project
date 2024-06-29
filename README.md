@@ -11,7 +11,6 @@ This project is a Django web application designed to facilitate real-time commun
 - Keras
 - OpenCV
 - WebRTC API
-- Google Charts
 
 ### Features
 - **Deaf Person View**: Streams hand gestures, translates them into text and video, and sends them to a hearing person.
