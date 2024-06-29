@@ -3,6 +3,16 @@
 ## Overview
 This project is a Django web application designed to facilitate real-time communication between a deaf person and a hearing person. The application uses machine learning to translate hand gestures into text and videos. It includes APIs for integrating with Flutter applications.
 
+## Technologies Used
+- Django
+- JavaScript
+- Bootstrap
+- TensorFlow
+- Keras
+- OpenCV
+- WebRTC API
+- Google Charts
+
 ### Features
 - **Deaf Person View**: Streams hand gestures, translates them into text and video, and sends them to a hearing person.
 - **Hearing Person View**: Receives video and text messages from the deaf person, and can reply via text or voice note, which are then translated into hand gesture videos for the deaf person.
