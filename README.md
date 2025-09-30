@@ -2,6 +2,9 @@
 
 A revolutionary Django web application that bridges the communication gap between deaf and hearing individuals through real-time hand gesture recognition, text-to-sign language conversion, and voice-to-sign language translation.
 
+## 🚀 Live Demo
+[Visit the Website](https://mego354.github.io/Hand-Gesture-Project/)
+
 ## 🌟 Overview
 
 This application serves as a comprehensive communication platform that enables seamless interaction between deaf and hearing individuals. It combines cutting-edge machine learning, computer vision, and web technologies to provide real-time gesture recognition, text translation, and voice processing capabilities.
