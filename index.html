@@ -350,6 +350,19 @@
             font-size: 1.1rem;
         }
 
+        /* Screenshot Section */
+        <!-- .screenshots-grid {
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        } -->
+
+        /* Screenshot Card */
+        .screenshot-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+        }
+
         /* CTA Section */
         .cta-section {
             padding: 100px 0;
@@ -464,9 +477,6 @@
                 margin: 1rem 0 !important;
             }
 
-            .screenshots-grid {
-                grid-template-columns: 1fr !important;
-            }
         }
 
         /* Smooth scrolling */
@@ -793,11 +803,11 @@
             <!-- App Screenshots -->
             <div class="screenshots-section" style="margin-top: 4rem;">
                 <h3 style="text-align: center; font-size: 2rem; font-weight: 600; margin-bottom: 2rem; color: var(--text-primary);">App Interface</h3>
-                <div class="screenshots-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; max-width: 1000px; margin: 0 auto;">
+                <div class="screenshots-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem; max-width: 1000px; margin: 0 auto;">
                     
                     <div class="screenshot-card" style="background: white; border-radius: 15px; padding: 1.5rem; box-shadow: var(--shadow-light); text-align: center;">
                         <h4 style="font-weight: 600; margin-bottom: 1rem; color: var(--text-primary);">Text Input Interface</h4>
-                        <div style="background: #f8fafc; border-radius: 10px; padding-block: 2rem; padding-inline: 1.2rem; margin-bottom: 1rem;">
+                        <div style="background: #f8fafc; border-radius: 10px; padding-block: 2rem; padding-inline: 0.4rem; margin-bottom: 1rem;">
                             <div style="background: white; border-radius: 8px; padding: 1rem; margin-bottom: 1rem; border: 2px solid #e2e8f0;">
                                 <input type="text" placeholder="Type your message here..." style="width: 100%; border: none; outline: none; font-size: 1rem;" readonly>
                             </div>
@@ -808,7 +818,7 @@
 
                     <div class="screenshot-card" style="background: white; border-radius: 15px; padding: 1.5rem; box-shadow: var(--shadow-light); text-align: center;">
                         <h4 style="font-weight: 600; margin-bottom: 1rem; color: var(--text-primary);">Voice Recording</h4>
-                        <div style="background: #f8fafc; border-radius: 10px; padding-block: 2rem; padding-inline: 1.2rem; margin-bottom: 1rem;">
+                        <div style="background: #f8fafc; border-radius: 10px; padding-block: 2rem; padding-inline: 0.4rem; margin-bottom: 1rem;">
                             <div style="width: 80px; height: 80px; background: var(--secondary-gradient); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; font-size: 2rem; color: white;">🎤</div>
                             <button style="background: var(--secondary-gradient); color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 25px; font-weight: 600; cursor: pointer; margin: 0 0.5rem;">Record</button>
                             <button style="background: #ef4444; color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 25px; font-weight: 600; cursor: pointer; margin: 0 0.5rem;">Stop</button>
@@ -818,8 +828,8 @@
 
                     <div class="screenshot-card" style="background: white; border-radius: 15px; padding: 1.5rem; box-shadow: var(--shadow-light); text-align: center;">
                         <h4 style="font-weight: 600; margin-bottom: 1rem; color: var(--text-primary);">Video Output</h4>
-                        <div style="background: #f8fafc; border-radius: 10px; padding-block: 1rem; padding-inline: 1.2rem; margin-bottom: 1rem;">
-                            <video width="100%" height="500" controls style="border-radius: 8px;">
+                        <div style="background: #f8fafc; border-radius: 10px; padding-block: 1rem; padding-inline: 0.4rem; margin-bottom: 1rem;">
+                            <video width="100%" height="330" controls style="border-radius: 8px;">
                                 <source src="media\اخي.mp4" type="video/mp4">
                                 Your browser does not support the video tag.
                             </video>
