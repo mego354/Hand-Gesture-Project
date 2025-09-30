@@ -1,0 +1,442 @@
+{% extends "video_app/main.html" %}
+{% load static %}
+
+{% block title %}Text to Sign Language - Hand Gesture Communication App{% endblock %}
+
+{% block styles %}
+<style>
+    .text-hero {
+        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        color: white;
+        padding: 100px 0 60px;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .text-hero::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="text" width="20" height="20" patternUnits="userSpaceOnUse"><text x="10" y="15" font-size="12" fill="white" opacity="0.1" text-anchor="middle">A</text></pattern></defs><rect width="100" height="100" fill="url(%23text)"/></svg>');
+        opacity: 0.3;
+    }
+    
+    .text-hero-content {
+        position: relative;
+        z-index: 2;
+    }
+    
+    .text-title {
+        font-size: 3rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+    
+    .text-subtitle {
+        font-size: 1.2rem;
+        opacity: 0.9;
+        margin-bottom: 2rem;
+    }
+    
+    .text-container {
+        background: white;
+        border-radius: 20px;
+        padding: 2rem;
+        margin: 2rem 0;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+    }
+    
+    .text-form-section {
+        background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        border-radius: 15px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+    }
+    
+    .text-form {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .text-input-group {
+        display: flex;
+        gap: 1rem;
+        align-items: stretch;
+    }
+    
+    .text-input {
+        flex: 1;
+        padding: 0.75rem 1rem;
+        border: 2px solid #e2e8f0;
+        border-radius: 10px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+    
+    .text-input:focus {
+        border-color: #f59e0b;
+        box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
+        outline: none;
+    }
+    
+    .submit-btn {
+        padding: 0.75rem 1.5rem;
+        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .submit-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(245, 158, 11, 0.3);
+    }
+    
+    .submit-btn:disabled {
+        background: #94a3b8;
+        cursor: not-allowed;
+        transform: none;
+    }
+    
+    .result-section {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 15px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        text-align: center;
+    }
+    
+    .result-title {
+        font-size: 1.3rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+    }
+    
+    .result-text {
+        font-size: 1.2rem;
+        font-weight: 600;
+        background: rgba(255, 255, 255, 0.2);
+        padding: 1rem 2rem;
+        border-radius: 10px;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        min-height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .video-section {
+        background: white;
+        border-radius: 15px;
+        padding: 2rem;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        text-align: center;
+    }
+    
+    .video-container {
+        max-width: 600px;
+        margin: 0 auto;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+    
+    .video-container video {
+        width: 100%;
+        height: 400px;
+        object-fit: cover;
+    }
+    
+    .instructions {
+        background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+        border: 2px solid #f59e0b;
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    .instructions-title {
+        color: #92400e;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .instructions-list {
+        color: #92400e;
+        margin: 0;
+        padding-left: 1.5rem;
+    }
+    
+    .instructions-list li {
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+    }
+    
+    @media (max-width: 768px) {
+        .text-title {
+            font-size: 2rem;
+        }
+        
+        .text-input-group {
+            flex-direction: column;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .text-hero {
+            padding: 80px 0 40px;
+        }
+        
+        .text-container {
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+        
+        .video-container video {
+            height: 250px;
+        }
+        
+        .result-text {
+            font-size: 1rem;
+            padding: 0.75rem 1rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<!-- Text Hero Section -->
+<section class="text-hero">
+    <div class="container">
+        <div class="text-hero-content">
+            <h1 class="text-title">
+                <i class="fas fa-keyboard me-3"></i>
+                Text to Sign Language
+            </h1>
+            <p class="text-subtitle">
+                Type your message and convert it to sign language video
+            </p>
+        </div>
+    </div>
+</section>
+
+<!-- Main Text Container -->
+<div class="container">
+    <div class="text-container">
+        <!-- Instructions -->
+        <div class="instructions">
+            <h3 class="instructions-title">
+                <i class="fas fa-info-circle"></i>
+                How to Use Text to Sign
+            </h3>
+            <ol class="instructions-list">
+                <li>Type your message in the text input field below</li>
+                <li>Click "Convert to Sign Language" to process your text</li>
+                <li>Your text will be converted to sign language video</li>
+                <li>View the result below</li>
+            </ol>
+        </div>
+
+        <!-- Text Form Section -->
+        <div class="text-form-section">
+            <h3 style="color: #1e293b; font-weight: 700; margin-bottom: 1.5rem;">
+                <i class="fas fa-keyboard me-2"></i>
+                Text Input
+            </h3>
+            
+            <form id="textForm" class="text-form" action="{% url 'video_app:upload_text' %}" method="post">
+                {% csrf_token %}
+                <div class="text-input-group">
+                    <input type="text" id="textInput" name="text_input" 
+                           class="text-input" placeholder="Type your message here..." required>
+                    <button type="submit" class="submit-btn">
+                        <i class="fas fa-paper-plane"></i>
+                        Convert to Sign Language
+                    </button>
+                </div>
+            </form>
+            
+            <p style="color: #64748b; font-size: 0.9rem; text-align: center; margin: 1rem 0 0 0;">
+                Type your message and click "Convert to Sign Language" to generate the video
+            </p>
+        </div>
+
+        <!-- Result Section -->
+        <div class="result-section">
+            <h3 class="result-title">
+                <i class="fas fa-comment-dots me-2"></i>
+                Processed Text
+            </h3>
+            <div class="result-text" id="resultText">
+                Waiting for your text input...
+            </div>
+        </div>
+
+        <!-- Video Section -->
+        <div class="video-section">
+            <h3 style="color: #1e293b; font-weight: 700; margin-bottom: 1rem;">
+                <i class="fas fa-play-circle me-2"></i>
+                Sign Language Video
+            </h3>
+            <div class="video-container" id="videoContainer">
+                <p style="color: #64748b; padding: 2rem;">Video will appear here after processing your text</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Global variables
+    const textForm = document.getElementById('textForm');
+    const textInput = document.getElementById('textInput');
+    const resultText = document.getElementById('resultText');
+    const videoContainer = document.getElementById('videoContainer');
+
+    // Update result text
+    function updateResultText(text, isError = false) {
+        if (isError) {
+            resultText.innerHTML = `<span style="color: #fca5a5;">Error: ${text}</span>`;
+        } else {
+            resultText.textContent = text;
+        }
+    }
+
+    // Update video container
+    function updateVideoContainer(videoUrl) {
+        if (videoUrl) {
+            videoContainer.innerHTML = `
+                <video controls style="width: 100%; height: 400px; object-fit: cover;">
+                    <source src="${videoUrl}" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+            `;
+        }
+    }
+
+    // Text form functionality - will be added in DOMContentLoaded
+
+    // Cookie helper function
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    // Keyboard shortcuts
+    document.addEventListener('keydown', function(event) {
+        // Ctrl/Cmd + Enter to submit text form
+        if ((event.ctrlKey || event.metaKey) && event.key === 'Enter') {
+            if (document.activeElement === textInput) {
+                textForm.dispatchEvent(new Event('submit'));
+            }
+        }
+    });
+
+    // Auto-focus text input
+    textInput.focus();
+
+    // Add some visual feedback for form interactions
+    textInput.addEventListener('focus', function() {
+        this.parentElement.style.transform = 'scale(1.02)';
+    });
+    
+    textInput.addEventListener('blur', function() {
+        this.parentElement.style.transform = 'scale(1)';
+    });
+
+    // Initialize page
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add button click handler for manual form submission
+        const submitBtn = document.querySelector('.submit-btn');
+        if (submitBtn) {
+            submitBtn.addEventListener('click', function(event) {
+                // Manually trigger form submission if needed
+                if (textForm) {
+                    textForm.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+                }
+            });
+        }
+        
+        // Add form submit event listener
+        if (textForm) {
+            textForm.addEventListener('submit', async function(event) {
+                event.preventDefault();
+                
+                const textValue = textInput.value.trim();
+                if (!textValue) {
+                    updateResultText('Please enter some text', true);
+                    return;
+                }
+                
+                const submitBtn = textForm.querySelector('.submit-btn');
+                const originalText = submitBtn.innerHTML;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+                submitBtn.disabled = true;
+                
+                const formData = new FormData();
+                formData.append('text_input', textValue);
+                
+                try {
+                    const response = await fetch('{% url "video_app:upload_text" %}', {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-CSRFToken': getCookie('csrftoken')
+                        }
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+
+                    const data = await response.json();
+                    
+                    if (data.success || data.statue) {
+                        const resultText = data.text || data.message || 'Text processed successfully';
+                        updateResultText(resultText);
+                        // Update video if available
+                        if (data.videosrc) {
+                            updateVideoContainer(data.videosrc);
+                        }
+                        textInput.value = '';
+                    } else {
+                        updateResultText('Failed to process the text', true);
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    updateResultText('Network error occurred', true);
+                } finally {
+                    submitBtn.innerHTML = originalText;
+                    submitBtn.disabled = false;
+                }
+            });
+        }
+    });
+</script>
+{% endblock body %}

@@ -1,0 +1,985 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🤟 Hand Gesture Communication App - Bridging the Gap</title>
+    <meta name="description" content="Revolutionary AI-powered communication platform that bridges the gap between deaf and hearing individuals through real-time gesture recognition, text-to-sign, and voice-to-sign translation.">
+    <meta name="keywords" content="hand gesture recognition, sign language, deaf communication, AI, machine learning, accessibility">
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --secondary-gradient: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            --accent-gradient: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --bg-light: #f8fafc;
+            --shadow-light: 0 10px 30px rgba(0,0,0,0.1);
+            --shadow-hover: 0 20px 40px rgba(0,0,0,0.15);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+            color: var(--text-primary);
+            overflow-x: hidden;
+        }
+
+        /* Hero Section */
+        .hero-section {
+            background: var(--primary-gradient);
+            color: white;
+            padding: 120px 0 80px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+        }
+
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="50" cy="50" r="1" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+            opacity: 0.3;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .hero-title {
+            font-size: 4rem;
+            font-weight: 800;
+            margin-bottom: 1.5rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            animation: fadeInUp 1s ease-out;
+        }
+
+        .hero-subtitle {
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+            opacity: 0.95;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+            animation: fadeInUp 1s ease-out 0.2s both;
+        }
+
+        .hero-description {
+            font-size: 1.1rem;
+            margin-bottom: 3rem;
+            opacity: 0.9;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            animation: fadeInUp 1s ease-out 0.4s both;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            animation: fadeInUp 1s ease-out 0.6s both;
+        }
+
+        .btn-hero {
+            padding: 15px 30px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 50px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary-hero {
+            background: white;
+            color: #667eea;
+            border-color: white;
+        }
+
+        .btn-primary-hero:hover {
+            background: transparent;
+            color: white;
+            border-color: white;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .btn-secondary-hero {
+            background: transparent;
+            color: white;
+            border-color: white;
+        }
+
+        .btn-secondary-hero:hover {
+            background: white;
+            color: #667eea;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        /* Features Section */
+        .features-section {
+            padding: 100px 0;
+            background: var(--bg-light);
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        .section-title {
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+        }
+
+        .section-subtitle {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        .feature-card {
+            background: white;
+            border-radius: 20px;
+            padding: 2.5rem;
+            text-align: center;
+            box-shadow: var(--shadow-light);
+            transition: all 0.3s ease;
+            border: 1px solid #e2e8f0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--primary-gradient);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .feature-icon {
+            font-size: 4rem;
+            margin-bottom: 1.5rem;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .feature-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        .feature-description {
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        /* How It Works Section */
+        .how-it-works {
+            padding: 100px 0;
+            background: white;
+        }
+
+        .steps-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        .step-card {
+            background: var(--bg-light);
+            border-radius: 20px;
+            padding: 2rem;
+            text-align: center;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .step-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-light);
+        }
+
+        .step-number {
+            width: 60px;
+            height: 60px;
+            background: var(--secondary-gradient);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin: 0 auto 1.5rem;
+        }
+
+        .step-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        .step-description {
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        /* Technology Section */
+        .technology-section {
+            padding: 100px 0;
+            background: var(--bg-light);
+        }
+
+        .tech-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+
+
+            gap: 1.5rem;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        .tech-item {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: var(--shadow-light);
+            transition: all 0.3s ease;
+        }
+
+        .tech-item:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .tech-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            color: #667eea;
+        }
+
+        .tech-name {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        /* Demo Section */
+        .demo-section {
+            padding: 100px 0;
+            background: white;
+        }
+
+        .demo-container {
+            max-width: 800px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .demo-video {
+            width: 100%;
+            max-width: 600px;
+            height: 400px;
+            background: var(--bg-light);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 2rem auto;
+            border: 2px dashed #cbd5e1;
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+
+        /* CTA Section */
+        .cta-section {
+            padding: 100px 0;
+            background: var(--primary-gradient);
+            color: white;
+            text-align: center;
+        }
+
+        .cta-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .cta-description {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+        }
+
+        /* Footer */
+        .footer {
+            background: #1e293b;
+            color: white;
+            padding: 60px 0 30px;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        .footer-section h5 {
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: white;
+        }
+
+        .footer-section p,
+        .footer-section a {
+            color: #94a3b8;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer-section a:hover {
+            color: white;
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 2rem;
+            margin-top: 2rem;
+            border-top: 1px solid #334155;
+            color: #94a3b8;
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 2.5rem;
+            }
+
+            .hero-subtitle {
+                font-size: 1.2rem;
+            }
+
+            .section-title {
+                font-size: 2rem;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .cta-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .btn-hero {
+                width: 100%;
+                max-width: 300px;
+            }
+
+            .demo-grid {
+                grid-template-columns: 1fr !important;
+            }
+
+            .workflow-steps {
+                grid-template-columns: 1fr !important;
+            }
+
+            .workflow-arrow {
+                transform: rotate(90deg) !important;
+                margin: 1rem 0 !important;
+            }
+
+            .screenshots-grid {
+                grid-template-columns: 1fr !important;
+            }
+        }
+
+        /* Smooth scrolling */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* Loading animation */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="container">
+            <div class="hero-content">
+                <h1 class="hero-title">
+                    🤟 Hand Gesture Communication
+                </h1>
+                <p class="hero-subtitle">
+                    Bridging the gap between deaf and hearing individuals through AI-powered real-time communication
+                </p>
+                <p class="hero-description">
+                    Experience seamless bidirectional communication with cutting-edge gesture recognition, 
+                    text-to-sign language conversion, and voice-to-sign translation technology.
+                </p>
+                <div class="cta-buttons">
+                    <a href="#features" class="btn-hero btn-primary-hero">
+                        🚀 Explore Features
+                    </a>
+                    <a href="#demo" class="btn-hero btn-secondary-hero">
+                        ▶️ See Demo
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="features-section">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Revolutionary Features</h2>
+                <p class="section-subtitle">
+                    Powered by advanced AI and machine learning to create an inclusive communication experience
+                </p>
+            </div>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        📹
+                    </div>
+                    <h3 class="feature-title">Real-time Gesture Recognition</h3>
+                    <p class="feature-description">
+                        Advanced computer vision and machine learning algorithms recognize hand gestures in real-time, 
+                        providing instant translation and communication.
+                    </p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        ⌨️
+                    </div>
+                    <h3 class="feature-title">Text-to-Sign Language</h3>
+                    <p class="feature-description">
+                        Convert written text into sign language videos instantly, enabling hearing individuals 
+                        to communicate effectively with deaf users.
+                    </p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        🎤
+                    </div>
+                    <h3 class="feature-title">Voice-to-Sign Translation</h3>
+                    <p class="feature-description">
+                        Transform voice recordings into sign language videos using advanced speech recognition 
+                        and natural language processing.
+                    </p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        💬
+                    </div>
+                    <h3 class="feature-title">Bidirectional Communication</h3>
+                    <p class="feature-description">
+                        Complete communication flow allowing both deaf and hearing individuals to interact 
+                        seamlessly through multiple input methods.
+                    </p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        📱
+                    </div>
+                    <h3 class="feature-title">Responsive Design</h3>
+                    <p class="feature-description">
+                        Modern, mobile-friendly interface that works perfectly on all devices, 
+                        ensuring accessibility everywhere.
+                    </p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        ⚡
+                    </div>
+                    <h3 class="feature-title">Real-time Processing</h3>
+                    <p class="feature-description">
+                        WebSocket-powered real-time communication with instant feedback and 
+                        seamless user experience.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works Section -->
+    <section class="how-it-works">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">How It Works</h2>
+                <p class="section-subtitle">
+                    Simple, intuitive process that makes communication effortless
+                </p>
+            </div>
+            <div class="steps-container">
+                <div class="step-card">
+                    <div class="step-number">1</div>
+                    <h3 class="step-title">Choose Your Mode</h3>
+                    <p class="step-description">
+                        Select between gesture recognition, text input, or voice recording 
+                        based on your communication needs.
+                    </p>
+                </div>
+                <div class="step-card">
+                    <div class="step-number">2</div>
+                    <h3 class="step-title">AI Processing</h3>
+                    <p class="step-description">
+                        Our advanced AI algorithms process your input using computer vision, 
+                        speech recognition, and natural language processing.
+                    </p>
+                </div>
+                <div class="step-card">
+                    <div class="step-number">3</div>
+                    <h3 class="step-title">Instant Translation</h3>
+                    <p class="step-description">
+                        Get real-time translation into sign language videos or text, 
+                        enabling seamless communication between users.
+                    </p>
+                </div>
+                <div class="step-card">
+                    <div class="step-number">4</div>
+                    <h3 class="step-title">Bidirectional Flow</h3>
+                    <p class="step-description">
+                        Complete communication cycle allowing both parties to respond 
+                        and continue the conversation naturally.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Technology Section -->
+    <section class="technology-section">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Powered by Advanced Technology</h2>
+                <p class="section-subtitle">
+                    Built with cutting-edge tools and frameworks for optimal performance
+                </p>
+            </div>
+            <div class="tech-grid">
+                <div class="tech-item">
+                    <div class="tech-icon">
+                        🐍
+                    </div>
+                    <div class="tech-name">Django</div>
+                </div>
+                <div class="tech-item">
+                    <div class="tech-icon">
+                        🧠
+                    </div>
+                    <div class="tech-name">TensorFlow</div>
+                </div>
+                <div class="tech-item">
+                    <div class="tech-icon">
+                        👁️
+                    </div>
+                    <div class="tech-name">OpenCV</div>
+                </div>
+                <div class="tech-item">
+                    <div class="tech-icon">
+                        ✋
+                    </div>
+                    <div class="tech-name">MediaPipe</div>
+                </div>
+                <div class="tech-item">
+                    <div class="tech-icon">
+                        ⚡
+                    </div>
+                    <div class="tech-name">JavaScript</div>
+                </div>
+                <div class="tech-item">
+                    <div class="tech-icon">
+                        🔌
+                    </div>
+                    <div class="tech-name">WebSockets</div>
+                </div>
+                <div class="tech-item">
+                    <div class="tech-icon">
+                        🎤
+                    </div>
+                    <div class="tech-name">Speech Recognition</div>
+                </div>
+                <div class="tech-item">
+                    <div class="tech-icon">
+                        🎬
+                    </div>
+                    <div class="tech-name">FFmpeg</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Demo Section -->
+    <section id="demo" class="demo-section">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">See It In Action</h2>
+                <p class="section-subtitle">
+                    Experience the power of AI-driven communication with real examples
+                </p>
+            </div>
+            
+            <!-- Demo Grid -->
+            <div class="demo-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; max-width: 1200px; margin: 0 auto; padding: 0 1rem;">
+                
+                <!-- Text to Sign Demo -->
+                <div class="demo-card" style="background: white; border-radius: 20px; padding: 2rem; box-shadow: var(--shadow-light); text-align: center;">
+                    <div class="demo-icon" style="font-size: 3rem; margin-bottom: 1rem; color: #667eea;">⌨️</div>
+                    <h3 style="font-size: 1.5rem; font-weight: 600; margin-bottom: 1rem; color: var(--text-primary);">Text to Sign Language</h3>
+                    <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">Type any text and watch it transform into sign language videos</p>
+                    <div class="demo-video-container" style="background: #f8fafc; border-radius: 15px; padding: 1rem; margin-bottom: 1rem;">
+                        <video width="100%" height="200" controls style="border-radius: 10px;">
+                            <source src="video_app\models\video1.mp4" type="video/mp4">
+                            Your browser does not support the video tag.
+                        </video>
+                    </div>
+                    <p style="font-size: 0.9rem; color: var(--text-secondary);">
+                        <strong>Example:</strong> "Hello World" → Sign Language Video
+                    </p>
+                </div>
+
+                <!-- Voice to Sign Demo -->
+                <div class="demo-card" style="background: white; border-radius: 20px; padding: 2rem; box-shadow: var(--shadow-light); text-align: center;">
+                    <div class="demo-icon" style="font-size: 3rem; margin-bottom: 1rem; color: #10b981;">🎤</div>
+                    <h3 style="font-size: 1.5rem; font-weight: 600; margin-bottom: 1rem; color: var(--text-primary);">Voice to Sign Language</h3>
+                    <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">Record your voice and see it converted to sign language</p>
+                    <div class="demo-video-container" style="background: #f8fafc; border-radius: 15px; padding: 1rem; margin-bottom: 1rem;">
+                        <video width="100%" height="200" controls style="border-radius: 10px;">
+                            <source src="video_app\models\video3.mp4" type="video/mp4">
+                            Your browser does not support the video tag.
+                        </video>
+                    </div>
+                    <p style="font-size: 0.9rem; color: var(--text-secondary);">
+                        <strong>Example:</strong> Voice Recording → Sign Language Video
+                    </p>
+                </div>
+
+                <!-- Gesture Recognition Demo -->
+                <div class="demo-card" style="background: white; border-radius: 20px; padding: 2rem; box-shadow: var(--shadow-light); text-align: center;">
+                    <div class="demo-icon" style="font-size: 3rem; margin-bottom: 1rem; color: #f59e0b;">👋</div>
+                    <h3 style="font-size: 1.5rem; font-weight: 600; margin-bottom: 1rem; color: var(--text-primary);">Real-time Gesture Recognition</h3>
+                    <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">Perform hand gestures and get instant text translation</p>
+                    <div class="demo-video-container" style="background: #f8fafc; border-radius: 15px; padding: 1rem; margin-bottom: 1rem;">
+                        <video width="100%" height="200" controls style="border-radius: 10px;">
+                            <source src="media\hand gesture.mp4" type="video/mp4">
+                            Your browser does not support the video tag.
+                        </video>
+                    </div>
+                    <p style="font-size: 0.9rem; color: var(--text-secondary);">
+                        <strong>Example:</strong> Hand Gesture → Text Translation
+                    </p>
+                </div>
+            </div>
+
+            <!-- How It Works Flow -->
+            <div class="workflow-section" style="margin-top: 4rem; padding: 3rem; background: var(--bg-light); border-radius: 20px;">
+                <h3 style="text-align: center; font-size: 2rem; font-weight: 600; margin-bottom: 2rem; color: var(--text-primary);">Communication Flow</h3>
+                <div class="workflow-steps" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem; max-width: 1000px; margin: 0 auto;">
+                    
+                    <div class="workflow-step" style="text-align: center;">
+                        <div class="step-icon" style="width: 80px; height: 80px; background: var(--primary-gradient); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; font-size: 2rem; color: white;">👤</div>
+                        <h4 style="font-weight: 600; margin-bottom: 0.5rem; color: var(--text-primary);">Deaf User</h4>
+                        <p style="color: var(--text-secondary); font-size: 0.9rem;">Performs hand gestures using the live camera feed</p>
+                    </div>
+
+                    <div class="workflow-arrow" style="display: flex; align-items: center; justify-content: center; font-size: 2rem; color: #667eea;">→</div>
+
+                    <div class="workflow-step" style="text-align: center;">
+                        <div class="step-icon" style="width: 80px; height: 80px; background: var(--secondary-gradient); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; font-size: 2rem; color: white;">🤖</div>
+                        <h4 style="font-weight: 600; margin-bottom: 0.5rem; color: var(--text-primary);">AI Processing</h4>
+                        <p style="color: var(--text-secondary); font-size: 0.9rem;">TensorFlow and MediaPipe analyze gestures in real-time</p>
+                    </div>
+
+                    <div class="workflow-arrow" style="display: flex; align-items: center; justify-content: center; font-size: 2rem; color: #667eea;">→</div>
+
+                    <div class="workflow-step" style="text-align: center;">
+                        <div class="step-icon" style="width: 80px; height: 80px; background: var(--accent-gradient); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; font-size: 2rem; color: white;">👂</div>
+                        <h4 style="font-weight: 600; margin-bottom: 0.5rem; color: var(--text-primary);">Hearing User</h4>
+                        <p style="color: var(--text-secondary); font-size: 0.9rem;">Receives text translation and can respond with voice/text</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- App Screenshots -->
+            <div class="screenshots-section" style="margin-top: 4rem;">
+                <h3 style="text-align: center; font-size: 2rem; font-weight: 600; margin-bottom: 2rem; color: var(--text-primary);">App Interface</h3>
+                <div class="screenshots-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; max-width: 1000px; margin: 0 auto;">
+                    
+                    <div class="screenshot-card" style="background: white; border-radius: 15px; padding: 1.5rem; box-shadow: var(--shadow-light); text-align: center;">
+                        <h4 style="font-weight: 600; margin-bottom: 1rem; color: var(--text-primary);">Text Input Interface</h4>
+                        <div style="background: #f8fafc; border-radius: 10px; padding-block: 2rem; padding-inline: 1.2rem; margin-bottom: 1rem;">
+                            <div style="background: white; border-radius: 8px; padding: 1rem; margin-bottom: 1rem; border: 2px solid #e2e8f0;">
+                                <input type="text" placeholder="Type your message here..." style="width: 100%; border: none; outline: none; font-size: 1rem;" readonly>
+                            </div>
+                            <button style="background: var(--primary-gradient); color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 25px; font-weight: 600; cursor: pointer;">Send Message</button>
+                        </div>
+                        <p style="color: var(--text-secondary); font-size: 0.9rem;">Clean, intuitive interface for text input</p>
+                    </div>
+
+                    <div class="screenshot-card" style="background: white; border-radius: 15px; padding: 1.5rem; box-shadow: var(--shadow-light); text-align: center;">
+                        <h4 style="font-weight: 600; margin-bottom: 1rem; color: var(--text-primary);">Voice Recording</h4>
+                        <div style="background: #f8fafc; border-radius: 10px; padding-block: 2rem; padding-inline: 1.2rem; margin-bottom: 1rem;">
+                            <div style="width: 80px; height: 80px; background: var(--secondary-gradient); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; font-size: 2rem; color: white;">🎤</div>
+                            <button style="background: var(--secondary-gradient); color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 25px; font-weight: 600; cursor: pointer; margin: 0 0.5rem;">Record</button>
+                            <button style="background: #ef4444; color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 25px; font-weight: 600; cursor: pointer; margin: 0 0.5rem;">Stop</button>
+                        </div>
+                        <p style="color: var(--text-secondary); font-size: 0.9rem;">Easy voice recording with visual feedback</p>
+                    </div>
+
+                    <div class="screenshot-card" style="background: white; border-radius: 15px; padding: 1.5rem; box-shadow: var(--shadow-light); text-align: center;">
+                        <h4 style="font-weight: 600; margin-bottom: 1rem; color: var(--text-primary);">Video Output</h4>
+                        <div style="background: #f8fafc; border-radius: 10px; padding-block: 1rem; padding-inline: 1.2rem; margin-bottom: 1rem;">
+                            <video width="100%" height="500" controls style="border-radius: 8px;">
+                                <source src="media\اخي.mp4" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        </div>
+                        <p style="color: var(--text-secondary); font-size: 0.9rem;">Generated sign language videos</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section">
+        <div class="container">
+            <h2 class="cta-title">Ready to Experience the Future?</h2>
+            <p class="cta-description">
+                Join us in creating a more inclusive world through technology
+            </p>
+            <div class="cta-buttons">
+                <a href="https://github.com/yourusername/Hand-Gesture-Project" class="btn-hero btn-primary-hero" target="_blank">
+                    📁 View on GitHub
+                </a>
+                <a href="https://github.com/yourusername/Hand-Gesture-Project#installation" class="btn-hero btn-secondary-hero" target="_blank">
+                    ⬇️ Get Started
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h5>About the Project</h5>
+                    <p>
+                        A revolutionary communication platform that bridges the gap between deaf and hearing individuals 
+                        through cutting-edge AI technology and real-time gesture recognition.
+                    </p>
+                </div>
+                <div class="footer-section">
+                    <h5>Features</h5>
+                    <p><a href="#features">Real-time Gesture Recognition</a></p>
+                    <p><a href="#features">Text-to-Sign Language</a></p>
+                    <p><a href="#features">Voice-to-Sign Translation</a></p>
+                    <p><a href="#features">Bidirectional Communication</a></p>
+                </div>
+                <div class="footer-section">
+                    <h5>Technology</h5>
+                    <p><a href="#">Django Framework</a></p>
+                    <p><a href="#">TensorFlow AI</a></p>
+                    <p><a href="#">OpenCV Vision</a></p>
+                    <p><a href="#">WebSocket Real-time</a></p>
+                </div>
+                <div class="footer-section">
+                    <h5>Connect</h5>
+                    <p><a href="https://github.com/yourusername/Hand-Gesture-Project" target="_blank">GitHub Repository</a></p>
+                    <p><a href="https://github.com/yourusername/Hand-Gesture-Project/issues" target="_blank">Report Issues</a></p>
+                    <p><a href="https://github.com/yourusername/Hand-Gesture-Project/discussions" target="_blank">Community</a></p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 Hand Gesture Communication App. Made with ❤️ for the deaf and hard-of-hearing community.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Add loading animation to buttons
+        document.querySelectorAll('.btn-hero').forEach(button => {
+            button.addEventListener('click', function(e) {
+                if (this.href && this.href.startsWith('#')) {
+                    return; // Don't show loading for anchor links
+                }
+                
+                const originalText = this.innerHTML;
+                this.innerHTML = '<span class="loading"></span> Loading...';
+                this.style.pointerEvents = 'none';
+                
+                // Reset after 2 seconds (for demo purposes)
+                setTimeout(() => {
+                    this.innerHTML = originalText;
+                    this.style.pointerEvents = 'auto';
+                }, 2000);
+            });
+        });
+
+        // Add scroll animation to feature cards
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.animation = 'fadeInUp 0.6s ease-out forwards';
+                }
+            });
+        }, observerOptions);
+
+        // Observe all feature cards
+        document.querySelectorAll('.feature-card, .step-card, .tech-item').forEach(card => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(30px)';
+            observer.observe(card);
+        });
+
+        // Add parallax effect to hero section
+        window.addEventListener('scroll', () => {
+            const scrolled = window.pageYOffset;
+            const hero = document.querySelector('.hero-section');
+            if (hero) {
+                hero.style.transform = `translateY(${scrolled * 0.5}px)`;
+            }
+        });
+
+        // Add typing effect to hero title
+        function typeWriter(element, text, speed = 100) {
+            let i = 0;
+            element.innerHTML = '';
+            
+            function type() {
+                if (i < text.length) {
+                    element.innerHTML += text.charAt(i);
+                    i++;
+                    setTimeout(type, speed);
+                }
+            }
+            
+            type();
+        }
+
+        // Initialize typing effect when page loads
+        window.addEventListener('load', () => {
+            const heroTitle = document.querySelector('.hero-title');
+            if (heroTitle) {
+                const originalText = heroTitle.innerHTML;
+                setTimeout(() => {
+                    typeWriter(heroTitle, originalText, 50);
+                }, 1000);
+            }
+        });
+    </script>
+</body>
+</html>

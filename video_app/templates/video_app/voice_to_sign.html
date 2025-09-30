@@ -1,0 +1,548 @@
+{% extends "video_app/main.html" %}
+{% load static %}
+
+{% block title %}Voice to Sign Language - Hand Gesture Communication App{% endblock %}
+
+{% block styles %}
+<style>
+    .voice-hero {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: white;
+        padding: 100px 0 60px;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .voice-hero::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="waves" width="100" height="100" patternUnits="userSpaceOnUse"><path d="M0,50 Q25,0 50,50 T100,50" stroke="white" stroke-width="1" fill="none" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23waves)"/></svg>');
+        opacity: 0.3;
+    }
+    
+    .voice-hero-content {
+        position: relative;
+        z-index: 2;
+    }
+    
+    .voice-title {
+        font-size: 3rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+    
+    .voice-subtitle {
+        font-size: 1.2rem;
+        opacity: 0.9;
+        margin-bottom: 2rem;
+    }
+    
+    .voice-container {
+        background: white;
+        border-radius: 20px;
+        padding: 2rem;
+        margin: 2rem 0;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+    }
+    
+    .recording-section {
+        background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        border-radius: 15px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        text-align: center;
+    }
+    
+    .audio-player {
+        width: 100%;
+        margin-bottom: 1.5rem;
+        border-radius: 10px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+    
+    .recording-controls {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        margin-bottom: 1.5rem;
+        flex-wrap: wrap;
+    }
+    
+    .recording-btn {
+        padding: 0.75rem 1.5rem;
+        border: none;
+        border-radius: 50px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 1rem;
+    }
+    
+    .recording-btn-primary {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: white;
+    }
+    
+    .recording-btn-danger {
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        color: white;
+    }
+    
+    .recording-btn:disabled {
+        background: #94a3b8;
+        cursor: not-allowed;
+        transform: none;
+    }
+    
+    .recording-btn:not(:disabled):hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+    }
+    
+    .recording-status {
+        text-align: center;
+        padding: 1rem;
+        border-radius: 10px;
+        margin-bottom: 1rem;
+        font-weight: 600;
+        display: none;
+    }
+    
+    .recording-status.recording {
+        background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+        color: #92400e;
+        border: 2px solid #f59e0b;
+        display: block;
+        animation: pulse 1.5s infinite;
+    }
+    
+    .recording-status.processing {
+        background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+        color: #1e40af;
+        border: 2px solid #3b82f6;
+        display: block;
+    }
+    
+    .result-section {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 15px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        text-align: center;
+    }
+    
+    .result-title {
+        font-size: 1.3rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+    }
+    
+    .result-text {
+        font-size: 1.2rem;
+        font-weight: 600;
+        background: rgba(255, 255, 255, 0.2);
+        padding: 1rem 2rem;
+        border-radius: 10px;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        min-height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .video-section {
+        background: white;
+        border-radius: 15px;
+        padding: 2rem;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        text-align: center;
+    }
+    
+    .video-container {
+        max-width: 600px;
+        margin: 0 auto;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+    
+    .video-container video {
+        width: 100%;
+        height: 400px;
+        object-fit: cover;
+    }
+    
+    .instructions {
+        background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+        border: 2px solid #f59e0b;
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    .instructions-title {
+        color: #92400e;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .instructions-list {
+        color: #92400e;
+        margin: 0;
+        padding-left: 1.5rem;
+    }
+    
+    .instructions-list li {
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+    }
+    
+    @keyframes pulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+    }
+    
+    @media (max-width: 768px) {
+        .voice-title {
+            font-size: 2rem;
+        }
+        
+        .recording-controls {
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .recording-btn {
+            width: 100%;
+            max-width: 250px;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .voice-hero {
+            padding: 80px 0 40px;
+        }
+        
+        .voice-container {
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+        
+        .video-container video {
+            height: 250px;
+        }
+        
+        .result-text {
+            font-size: 1rem;
+            padding: 0.75rem 1rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<!-- Voice Hero Section -->
+<section class="voice-hero">
+    <div class="container">
+        <div class="voice-hero-content">
+            <h1 class="voice-title">
+                <i class="fas fa-microphone me-3"></i>
+                Voice to Sign Language
+            </h1>
+            <p class="voice-subtitle">
+                Record your voice and convert it to sign language video
+            </p>
+        </div>
+    </div>
+</section>
+
+<!-- Main Voice Container -->
+<div class="container">
+    <div class="voice-container">
+        <!-- Instructions -->
+        <div class="instructions">
+            <h3 class="instructions-title">
+                <i class="fas fa-info-circle"></i>
+                How to Use Voice to Sign
+            </h3>
+            <ol class="instructions-list">
+                <li>Click "Start Recording" to begin recording your voice</li>
+                <li>Speak clearly into your microphone</li>
+                <li>Click "Stop Recording" when you're done</li>
+                <li>Your voice will be converted to text and then to sign language</li>
+                <li>View the result below</li>
+            </ol>
+        </div>
+
+        <!-- Recording Section -->
+        <div class="recording-section">
+            <h3 style="color: #1e293b; font-weight: 700; margin-bottom: 1.5rem;">
+                <i class="fas fa-microphone me-2"></i>
+                Voice Recording
+            </h3>
+            
+            <audio id="audioPlayback" class="audio-player" controls></audio>
+            
+            <div class="recording-status" id="recordingStatus"></div>
+            
+            <div class="recording-controls">
+                <button id="startRecording" class="recording-btn recording-btn-primary">
+                    <i class="fas fa-microphone"></i>
+                    Start Recording
+                </button>
+                <button id="stopRecording" class="recording-btn recording-btn-danger" disabled>
+                    <i class="fas fa-stop"></i>
+                    Stop Recording
+                </button>
+            </div>
+            
+            <p style="color: #64748b; font-size: 0.9rem; text-align: center; margin: 0;">
+                Click "Start Recording" to begin, then speak your message clearly
+            </p>
+        </div>
+
+        <!-- Result Section -->
+        <div class="result-section">
+            <h3 class="result-title">
+                <i class="fas fa-comment-dots me-2"></i>
+                Recognized Text
+            </h3>
+            <div class="result-text" id="resultText">
+                Waiting for your voice message...
+            </div>
+        </div>
+
+        <!-- Video Section -->
+        <div class="video-section">
+            <h3 style="color: #1e293b; font-weight: 700; margin-bottom: 1rem;">
+                <i class="fas fa-play-circle me-2"></i>
+                Sign Language Video
+            </h3>
+            <div class="video-container" id="videoContainer">
+                <p style="color: #64748b; padding: 2rem;">Video will appear here after processing your voice message</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Global variables
+    let mediaRecorder;
+    let audioChunks = [];
+    
+    const startRecordingButton = document.getElementById('startRecording');
+    const stopRecordingButton = document.getElementById('stopRecording');
+    const audioPlayback = document.getElementById('audioPlayback');
+    const resultText = document.getElementById('resultText');
+    const recordingStatus = document.getElementById('recordingStatus');
+    const videoContainer = document.getElementById('videoContainer');
+
+    // Status management
+    function updateRecordingStatus(status, message) {
+        recordingStatus.className = `recording-status ${status}`;
+        recordingStatus.textContent = message;
+    }
+
+    function hideRecordingStatus() {
+        recordingStatus.style.display = 'none';
+    }
+
+    // Update result text
+    function updateResultText(text, isError = false) {
+        if (isError) {
+            resultText.innerHTML = `<span style="color: #fca5a5;">Error: ${text}</span>`;
+        } else {
+            resultText.textContent = text;
+        }
+    }
+
+    // Update video container
+    function updateVideoContainer(videoUrl) {
+        if (videoUrl) {
+            videoContainer.innerHTML = `
+                <video controls style="width: 100%; height: 400px; object-fit: cover;">
+                    <source src="${videoUrl}" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+            `;
+        }
+    }
+
+    // Voice recording functionality
+    startRecordingButton.addEventListener('click', async () => {
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ 
+                audio: {
+                    echoCancellation: true,
+                    noiseSuppression: true,
+                    sampleRate: 44100
+                } 
+            });
+            
+            // Try different MIME types for better compatibility
+            let mimeType = 'audio/webm;codecs=opus';
+            if (!MediaRecorder.isTypeSupported(mimeType)) {
+                mimeType = 'audio/webm';
+            }
+            if (!MediaRecorder.isTypeSupported(mimeType)) {
+                mimeType = 'audio/mp4';
+            }
+            if (!MediaRecorder.isTypeSupported(mimeType)) {
+                mimeType = 'audio/wav';
+            }
+            
+            console.log(`Using audio MIME type: ${mimeType}`);
+            
+            mediaRecorder = new MediaRecorder(stream, {
+                mimeType: mimeType
+            });
+            
+            audioChunks = [];
+            
+            mediaRecorder.ondataavailable = event => {
+                if (event.data.size > 0) {
+                    audioChunks.push(event.data);
+                }
+            };
+            
+            mediaRecorder.onstop = () => {
+                const audioBlob = new Blob(audioChunks, { type: mimeType });
+                const audioUrl = URL.createObjectURL(audioBlob);
+                audioPlayback.src = audioUrl;
+                sendVoiceNoteToServer(audioBlob, mimeType);
+                
+                // Stop all tracks to release microphone
+                stream.getTracks().forEach(track => track.stop());
+            };
+            
+            mediaRecorder.start();
+            startRecordingButton.disabled = true;
+            stopRecordingButton.disabled = false;
+            
+            updateRecordingStatus('recording', '🎤 Recording... Speak clearly into your microphone');
+            
+        } catch (error) {
+            console.error('Error accessing microphone:', error);
+            updateRecordingStatus('error', '❌ Unable to access microphone. Please check permissions.');
+            setTimeout(hideRecordingStatus, 3000);
+        }
+    });
+    
+    stopRecordingButton.addEventListener('click', () => {
+        if (mediaRecorder && mediaRecorder.state === 'recording') {
+            mediaRecorder.stop();
+            startRecordingButton.disabled = false;
+            stopRecordingButton.disabled = true;
+            
+            updateRecordingStatus('processing', '🔄 Processing your voice message...');
+        }
+    });
+    
+    function sendVoiceNoteToServer(audioBlob, mimeType = 'audio/webm') {
+        // Determine file extension based on MIME type
+        let fileExtension = 'webm';
+        if (mimeType.includes('mp4')) {
+            fileExtension = 'mp4';
+        } else if (mimeType.includes('wav')) {
+            fileExtension = 'wav';
+        }
+        
+        const formData = new FormData();
+        formData.append('voiceNote', audioBlob, `voiceNote.${fileExtension}`);
+        
+        // Debug FormData contents
+        console.log('Voice FormData contents:');
+        for (let [key, value] of formData.entries()) {
+            console.log(`  ${key}:`, value);
+        }
+        
+        fetch('{% url "video_app:stream_voice_to_sign" %}', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken')
+            }
+        })
+        .then(response => {
+            console.log('Voice response status:', response.status);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(result => {
+            console.log('Voice response data:', result);
+            hideRecordingStatus();
+            
+            if (result.success && result.text) {
+                updateResultText(result.text);
+                // Update video if available
+                if (result.videosrc) {
+                    updateVideoContainer(result.videosrc);
+                }
+            } else if (result.text) {
+                updateResultText(result.text);
+                // Update video if available
+                if (result.videosrc) {
+                    updateVideoContainer(result.videosrc);
+                }
+            } else {
+                updateResultText('Failed to process voice message', true);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            hideRecordingStatus();
+            updateResultText('Network error occurred', true);
+        });
+    }
+
+    // Cookie helper function
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    // Keyboard shortcuts
+    document.addEventListener('keydown', function(event) {
+        // Space bar to start/stop recording
+        if (event.key === ' ') {
+            event.preventDefault();
+            if (startRecordingButton.disabled === false) {
+                startRecordingButton.click();
+            } else if (stopRecordingButton.disabled === false) {
+                stopRecordingButton.click();
+            }
+        }
+    });
+
+    // Initialize page
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('Voice to sign page initialized');
+    });
+</script>
+{% endblock body %}

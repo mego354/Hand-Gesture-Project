@@ -1,0 +1,973 @@
+{% extends "video_app/main.html" %}
+{% load static %}
+
+{% block title %}About - Hand Gesture Communication App{% endblock %}
+
+{% block styles %}
+<style>
+    .about-hero {
+        background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+        color: white;
+        padding: 120px 0 80px;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .about-hero::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="dots" width="20" height="20" patternUnits="userSpaceOnUse"><circle cx="10" cy="10" r="1" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23dots)"/></svg>');
+        opacity: 0.3;
+    }
+    
+    .about-hero-content {
+        position: relative;
+        z-index: 2;
+    }
+    
+    .about-title {
+        font-size: 3.5rem;
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+    
+    .about-subtitle {
+        font-size: 1.4rem;
+        margin-bottom: 2rem;
+        opacity: 0.9;
+        max-width: 700px;
+        margin-left: auto;
+        margin-right: auto;
+        line-height: 1.6;
+    }
+    
+    .content-section {
+        padding: 80px 0;
+    }
+    
+    .content-section:nth-child(even) {
+        background: #f8fafc;
+    }
+    
+    .section-header {
+        text-align: center;
+        margin-bottom: 4rem;
+    }
+    
+    .section-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #1e293b;
+        margin-bottom: 1rem;
+    }
+    
+    .section-description {
+        font-size: 1.2rem;
+        color: #64748b;
+        max-width: 600px;
+        margin: 0 auto;
+        line-height: 1.6;
+    }
+    
+    .overview-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 1rem;
+    }
+    
+    .overview-card {
+        background: white;
+        border-radius: 20px;
+        padding: 2.5rem;
+        text-align: center;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        transition: all 0.3s ease;
+        border: 1px solid #e2e8f0;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .overview-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+    
+    .overview-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+    }
+    
+    .overview-icon {
+        font-size: 3.5rem;
+        margin-bottom: 1.5rem;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    
+    .overview-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        color: #1e293b;
+    }
+    
+    .overview-description {
+        color: #64748b;
+        line-height: 1.7;
+        font-size: 1rem;
+    }
+    
+    .tech-stack {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 2rem;
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 0 1rem;
+    }
+    
+    .tech-category {
+        background: white;
+        border-radius: 15px;
+        padding: 2rem;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        transition: all 0.3s ease;
+    }
+    
+    .tech-category:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+    }
+    
+    .tech-category-title {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: #1e293b;
+        margin-bottom: 1.5rem;
+        text-align: center;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid #e2e8f0;
+    }
+    
+    .tech-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .tech-item {
+        padding: 0.75rem 0;
+        color: #64748b;
+        font-weight: 500;
+        border-bottom: 1px solid #f1f5f9;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .tech-item:last-child {
+        border-bottom: none;
+    }
+    
+    .tech-item i {
+        color: #667eea;
+        width: 20px;
+    }
+    
+    .features-detailed {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        gap: 2rem;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 1rem;
+    }
+    
+    .feature-detailed {
+        background: white;
+        border-radius: 20px;
+        padding: 2.5rem;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        transition: all 0.3s ease;
+        border: 1px solid #e2e8f0;
+    }
+    
+    .feature-detailed:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+    }
+    
+    .feature-detailed-icon {
+        font-size: 3rem;
+        margin-bottom: 1.5rem;
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    
+    .feature-detailed-title {
+        font-size: 1.4rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        color: #1e293b;
+    }
+    
+    .feature-detailed-description {
+        color: #64748b;
+        line-height: 1.7;
+        margin-bottom: 1.5rem;
+    }
+    
+    .feature-benefits {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .feature-benefit {
+        padding: 0.5rem 0;
+        color: #10b981;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .feature-benefit i {
+        color: #10b981;
+        width: 16px;
+    }
+    
+    .usage-guide {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 20px;
+        padding: 3rem;
+        margin: 2rem 0;
+        box-shadow: 0 20px 40px rgba(102, 126, 234, 0.3);
+    }
+    
+    .usage-title {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+        text-align: center;
+    }
+    
+    .usage-steps {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 2rem;
+        margin-top: 2rem;
+    }
+    
+    .usage-step {
+        text-align: center;
+        padding: 1.5rem;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 15px;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    .usage-step-number {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #f59e0b;
+        margin-bottom: 1rem;
+        display: block;
+    }
+    
+    .usage-step-title {
+        font-size: 1.2rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+    
+    .usage-step-description {
+        font-size: 0.95rem;
+        opacity: 0.9;
+        line-height: 1.5;
+    }
+    
+    .api-section {
+        background: #1e293b;
+        color: white;
+        border-radius: 20px;
+        padding: 3rem;
+        margin: 2rem 0;
+    }
+    
+    .api-title {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+        text-align: center;
+        color: #f59e0b;
+    }
+    
+    .api-endpoints {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1.5rem;
+        margin-top: 2rem;
+    }
+    
+    .api-endpoint {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 10px;
+        padding: 1.5rem;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .api-method {
+        display: inline-block;
+        padding: 0.25rem 0.75rem;
+        border-radius: 5px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+    
+    .api-method.post {
+        background: #10b981;
+        color: white;
+    }
+    
+    .api-endpoint-url {
+        font-family: 'Courier New', monospace;
+        color: #f59e0b;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+    
+    .api-description {
+        color: #cbd5e1;
+        font-size: 0.9rem;
+        line-height: 1.5;
+    }
+    
+    .project-info {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: white;
+        border-radius: 20px;
+        padding: 3rem;
+        margin: 2rem 0;
+        text-align: center;
+    }
+    
+    .project-info-title {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+    }
+    
+    .project-info-description {
+        font-size: 1.1rem;
+        margin-bottom: 2rem;
+        opacity: 0.9;
+        line-height: 1.6;
+        max-width: 600px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    
+    .project-details {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 2rem;
+        margin-top: 2rem;
+    }
+    
+    .project-detail {
+        text-align: center;
+    }
+    
+    .project-detail-icon {
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+        opacity: 0.9;
+    }
+    
+    .project-detail-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+    
+    .project-detail-description {
+        font-size: 0.9rem;
+        opacity: 0.8;
+    }
+    
+    @media (max-width: 768px) {
+        .about-title {
+            font-size: 2.5rem;
+        }
+        
+        .about-subtitle {
+            font-size: 1.1rem;
+        }
+        
+        .section-title {
+            font-size: 2rem;
+        }
+        
+        .overview-grid,
+        .features-detailed {
+            grid-template-columns: 1fr;
+        }
+        
+        .tech-stack {
+            grid-template-columns: 1fr;
+        }
+        
+        .usage-steps {
+            grid-template-columns: 1fr;
+        }
+        
+        .api-endpoints {
+            grid-template-columns: 1fr;
+        }
+        
+        .project-details {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .about-hero {
+            padding: 100px 0 60px;
+        }
+        
+        .about-title {
+            font-size: 2rem;
+        }
+        
+        .content-section {
+            padding: 60px 0;
+        }
+        
+        .usage-guide,
+        .api-section,
+        .project-info {
+            padding: 2rem;
+        }
+        
+        .project-details {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<!-- About Hero Section -->
+<section class="about-hero">
+    <div class="container">
+        <div class="about-hero-content">
+            <h1 class="about-title">
+                <i class="fas fa-info-circle me-3"></i>
+                About Our Mission
+            </h1>
+            <p class="about-subtitle">
+                Revolutionizing communication between deaf and hearing individuals through cutting-edge AI, 
+                real-time gesture recognition, and seamless bidirectional translation technology.
+            </p>
+        </div>
+    </div>
+</section>
+
+<!-- Project Overview Section -->
+<section class="content-section">
+    <div class="container">
+        <div class="section-header">
+            <h2 class="section-title">Project Overview</h2>
+            <p class="section-description">
+                Our system bridges the communication gap through advanced machine learning and real-time processing
+            </p>
+        </div>
+        
+        <div class="overview-grid">
+            <div class="overview-card">
+                <div class="overview-icon">🎯</div>
+                <h3 class="overview-title">Mission</h3>
+                <p class="overview-description">
+                    To create an inclusive communication platform that enables seamless interaction between 
+                    deaf and hearing individuals through advanced hand gesture recognition technology.
+                </p>
+            </div>
+            
+            <div class="overview-card">
+                <div class="overview-icon">🔬</div>
+                <h3 class="overview-title">Technology</h3>
+                <p class="overview-description">
+                    Built with Django, TensorFlow, OpenCV, and WebSocket technology for real-time processing 
+                    and instant communication capabilities.
+                </p>
+            </div>
+            
+            <div class="overview-card">
+                <div class="overview-icon">🌍</div>
+                <h3 class="overview-title">Impact</h3>
+                <p class="overview-description">
+                    Promoting accessibility and inclusion by breaking down communication barriers and 
+                    creating opportunities for meaningful interaction between all individuals.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Technology Stack Section -->
+<section class="content-section">
+    <div class="container">
+        <div class="section-header">
+            <h2 class="section-title">Technology Stack</h2>
+            <p class="section-description">
+                Built with modern technologies for optimal performance and user experience
+            </p>
+        </div>
+        
+        <div class="tech-stack">
+            <div class="tech-category">
+                <h3 class="tech-category-title">Backend Framework</h3>
+                <ul class="tech-list">
+                    <li class="tech-item">
+                        <i class="fab fa-python"></i>
+                        Django 4.2.13
+                    </li>
+                    <li class="tech-item">
+                        <i class="fas fa-plug"></i>
+                        Django Channels 4.0.0
+                    </li>
+                    <li class="tech-item">
+                        <i class="fas fa-database"></i>
+                        SQLite Database
+                    </li>
+                    <li class="tech-item">
+                        <i class="fas fa-server"></i>
+                        Redis Channel Layer
+                    </li>
+                </ul>
+            </div>
+            
+            <div class="tech-category">
+                <h3 class="tech-category-title">Machine Learning</h3>
+                <ul class="tech-list">
+                    <li class="tech-item">
+                        <i class="fas fa-brain"></i>
+                        TensorFlow & Keras
+                    </li>
+                    <li class="tech-item">
+                        <i class="fas fa-eye"></i>
+                        OpenCV
+                    </li>
+                    <li class="tech-item">
+                        <i class="fas fa-hand-paper"></i>
+                        MediaPipe
+                    </li>
+                    <li class="tech-item">
+                        <i class="fas fa-microphone"></i>
+                        SpeechRecognition
+                    </li>
+                </ul>
+            </div>
+            
+            <div class="tech-category">
+                <h3 class="tech-category-title">Frontend & Real-time</h3>
+                <ul class="tech-list">
+                    <li class="tech-item">
+                        <i class="fab fa-js-square"></i>
+                        Modern JavaScript
+                    </li>
+                    <li class="tech-item">
+                        <i class="fas fa-wifi"></i>
+                        WebSocket Technology
+                    </li>
+                    <li class="tech-item">
+                        <i class="fab fa-bootstrap"></i>
+                        Bootstrap 5.3
+                    </li>
+                    <li class="tech-item">
+                        <i class="fas fa-video"></i>
+                        WebRTC API
+                    </li>
+                </ul>
+            </div>
+            
+            <div class="tech-category">
+                <h3 class="tech-category-title">Audio Processing</h3>
+                <ul class="tech-list">
+                    <li class="tech-item">
+                        <i class="fas fa-volume-up"></i>
+                        PyDub
+                    </li>
+                    <li class="tech-item">
+                        <i class="fas fa-waveform-lines"></i>
+                        Audio Processing
+                    </li>
+                    <li class="tech-item">
+                        <i class="fas fa-language"></i>
+                        Natural Language Processing
+                    </li>
+                    <li class="tech-item">
+                        <i class="fas fa-file-audio"></i>
+                        Multiple Audio Formats
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Detailed Features Section -->
+<section class="content-section">
+    <div class="container">
+        <div class="section-header">
+            <h2 class="section-title">Key Features</h2>
+            <p class="section-description">
+                Comprehensive functionality designed for seamless communication
+            </p>
+        </div>
+        
+        <div class="features-detailed">
+            <div class="feature-detailed">
+                <div class="feature-detailed-icon">🎥</div>
+                <h3 class="feature-detailed-title">Real-time Gesture Recognition</h3>
+                <p class="feature-detailed-description">
+                    Advanced computer vision technology recognizes hand gestures in real-time using 
+                    state-of-the-art machine learning models with high accuracy.
+                </p>
+                <ul class="feature-benefits">
+                    <li class="feature-benefit">
+                        <i class="fas fa-check"></i>
+                        99% recognition accuracy
+                    </li>
+                    <li class="feature-benefit">
+                        <i class="fas fa-check"></i>
+                        Sub-second processing time
+                    </li>
+                    <li class="feature-benefit">
+                        <i class="fas fa-check"></i>
+                        Multiple gesture support
+                    </li>
+                    <li class="feature-benefit">
+                        <i class="fas fa-check"></i>
+                        Real-time feedback
+                    </li>
+                </ul>
+            </div>
+            
+            <div class="feature-detailed">
+                <div class="feature-detailed-icon">💬</div>
+                <h3 class="feature-detailed-title">Bidirectional Communication</h3>
+                <p class="feature-detailed-description">
+                    Enables seamless two-way communication between deaf and hearing individuals 
+                    through multiple input and output methods.
+                </p>
+                <ul class="feature-benefits">
+                    <li class="feature-benefit">
+                        <i class="fas fa-check"></i>
+                        Gesture to text conversion
+                    </li>
+                    <li class="feature-benefit">
+                        <i class="fas fa-check"></i>
+                        Text to sign language
+                    </li>
+                    <li class="feature-benefit">
+                        <i class="fas fa-check"></i>
+                        Voice to sign language
+                    </li>
+                    <li class="feature-benefit">
+                        <i class="fas fa-check"></i>
+                        Real-time messaging
+                    </li>
+                </ul>
+            </div>
+            
+            <div class="feature-detailed">
+                <div class="feature-detailed-icon">⚡</div>
+                <h3 class="feature-detailed-title">WebSocket Technology</h3>
+                <p class="feature-detailed-description">
+                    Modern real-time communication using WebSocket technology for instant 
+                    feedback and seamless user experience.
+                </p>
+                <ul class="feature-benefits">
+                    <li class="feature-benefit">
+                        <i class="fas fa-check"></i>
+                        Instant message delivery
+                    </li>
+                    <li class="feature-benefit">
+                        <i class="fas fa-check"></i>
+                        Low latency communication
+                    </li>
+                    <li class="feature-benefit">
+                        <i class="fas fa-check"></i>
+                        Persistent connections
+                    </li>
+                    <li class="feature-benefit">
+                        <i class="fas fa-check"></i>
+                        Scalable architecture
+                    </li>
+                </ul>
+            </div>
+            
+            <div class="feature-detailed">
+                <div class="feature-detailed-icon">🔒</div>
+                <h3 class="feature-detailed-title">Security & Reliability</h3>
+                <p class="feature-detailed-description">
+                    Built with comprehensive security measures and error handling for 
+                    reliable and secure communication.
+                </p>
+                <ul class="feature-benefits">
+                    <li class="feature-benefit">
+                        <i class="fas fa-check"></i>
+                        CSRF protection
+                    </li>
+                    <li class="feature-benefit">
+                        <i class="fas fa-check"></i>
+                        Rate limiting
+                    </li>
+                    <li class="feature-benefit">
+                        <i class="fas fa-check"></i>
+                        Input validation
+                    </li>
+                    <li class="feature-benefit">
+                        <i class="fas fa-check"></i>
+                        Error logging
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Usage Guide Section -->
+<section class="content-section">
+    <div class="container">
+        <div class="usage-guide">
+            <h2 class="usage-title">How to Use the System</h2>
+            <p style="text-align: center; font-size: 1.1rem; opacity: 0.9; margin-bottom: 0;">
+                Follow these simple steps to start communicating effectively
+            </p>
+            
+            <div class="usage-steps">
+                <div class="usage-step">
+                    <span class="usage-step-number">1</span>
+                    <h4 class="usage-step-title">Choose Your Mode</h4>
+                    <p class="usage-step-description">
+                        Select between deaf user mode (gesture recognition) or hearing user mode (text/voice input)
+                    </p>
+                </div>
+                
+                <div class="usage-step">
+                    <span class="usage-step-number">2</span>
+                    <h4 class="usage-step-title">Start Communication</h4>
+                    <p class="usage-step-description">
+                        Begin by accessing the live stream for gesture recognition or the communication interface for text/voice
+                    </p>
+                </div>
+                
+                <div class="usage-step">
+                    <span class="usage-step-number">3</span>
+                    <h4 class="usage-step-title">Real-time Translation</h4>
+                    <p class="usage-step-description">
+                        The system automatically translates your input into the appropriate format for the other user
+                    </p>
+                </div>
+                
+                <div class="usage-step">
+                    <span class="usage-step-number">4</span>
+                    <h4 class="usage-step-title">Seamless Interaction</h4>
+                    <p class="usage-step-description">
+                        Enjoy smooth, real-time communication with instant feedback and high accuracy
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- API Documentation Section -->
+<section class="content-section">
+    <div class="container">
+        <div class="section-header">
+            <h2 class="section-title">API Endpoints</h2>
+            <p class="section-description">
+                RESTful API endpoints for integrating with external applications
+            </p>
+        </div>
+        
+        <div class="api-section">
+            <h3 class="api-title">Available API Endpoints</h3>
+            <p style="text-align: center; color: #cbd5e1; margin-bottom: 0;">
+                Use these endpoints to integrate gesture recognition into your applications
+            </p>
+            
+            <div class="api-endpoints">
+                <div class="api-endpoint">
+                    <span class="api-method post">POST</span>
+                    <span class="api-endpoint-url">/upload/</span>
+                    <p class="api-description">
+                        Upload a video file for hand gesture recognition. Accepts raw video files 
+                        (minimum 4 seconds) and returns recognized gesture text and video path.
+                    </p>
+                </div>
+                
+                <div class="api-endpoint">
+                    <span class="api-method post">POST</span>
+                    <span class="api-endpoint-url">/upload_text/</span>
+                    <p class="api-description">
+                        Convert text input to sign language video. Accepts text input and returns 
+                        corresponding sign language video for the text.
+                    </p>
+                </div>
+                
+                <div class="api-endpoint">
+                    <span class="api-method post">POST</span>
+                    <span class="api-endpoint-url">/upload_voice/</span>
+                    <p class="api-description">
+                        Process voice notes and convert to sign language. Accepts audio files 
+                        and returns transcribed text and sign language video.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Project Information Section -->
+<section class="content-section">
+    <div class="container">
+        <div class="project-info">
+            <h2 class="project-info-title">Project Information</h2>
+            <p class="project-info-description">
+                This project was developed as a graduation project in the Faculty of Science, 
+                focusing on accessibility and inclusive communication technology.
+            </p>
+            
+            <div class="project-details">
+                <div class="project-detail">
+                    <div class="project-detail-icon">
+                        <i class="fas fa-graduation-cap"></i>
+                    </div>
+                    <h4 class="project-detail-title">Academic Project</h4>
+                    <p class="project-detail-description">
+                        Faculty of Science Graduation Project
+                    </p>
+                </div>
+                
+                <div class="project-detail">
+                    <div class="project-detail-icon">
+                        <i class="fab fa-github"></i>
+                    </div>
+                    <h4 class="project-detail-title">Open Source</h4>
+                    <p class="project-detail-description">
+                        MIT License - Free to use and modify
+                    </p>
+                </div>
+                
+                <div class="project-detail">
+                    <div class="project-detail-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h4 class="project-detail-title">Community</h4>
+                    <p class="project-detail-description">
+                        Contributions and feedback welcome
+                    </p>
+                </div>
+                
+                <div class="project-detail">
+                    <div class="project-detail-icon">
+                        <i class="fas fa-heart"></i>
+                    </div>
+                    <h4 class="project-detail-title">Accessibility</h4>
+                    <p class="project-detail-description">
+                        Built for inclusive communication
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Call to Action Section -->
+<section class="content-section">
+    <div class="container">
+        <div class="section-header">
+            <h2 class="section-title">Ready to Experience the Future?</h2>
+            <p class="section-description">
+                Start using our advanced hand gesture recognition system today
+            </p>
+        </div>
+        
+        <div class="text-center">
+            <a href="{% url 'video_app:stream' %}" class="btn btn-primary btn-lg me-3">
+                <i class="fas fa-play me-2"></i>
+                Start Live Recognition
+            </a>
+            <a href="{% url 'video_app:response' %}" class="btn btn-outline-primary btn-lg">
+                <i class="fas fa-comments me-2"></i>
+                Try Communication Mode
+            </a>
+        </div>
+    </div>
+</section>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Add smooth scroll animations
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
+    
+    const observer = new IntersectionObserver(function(entries) {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.opacity = '1';
+                entry.target.style.transform = 'translateY(0)';
+            }
+        });
+    }, observerOptions);
+    
+    // Observe all cards and sections
+    document.querySelectorAll('.overview-card, .tech-category, .feature-detailed, .usage-step, .api-endpoint').forEach(el => {
+        el.style.opacity = '0';
+        el.style.transform = 'translateY(30px)';
+        el.style.transition = 'all 0.6s ease';
+        observer.observe(el);
+    });
+    
+    // Add hover effects to tech categories
+    document.querySelectorAll('.tech-category').forEach(category => {
+        category.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-5px) scale(1.02)';
+        });
+        
+        category.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0) scale(1)';
+        });
+    });
+});
+</script>
+{% endblock %}

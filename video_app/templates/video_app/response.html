@@ -1,183 +1,898 @@
 {% extends "video_app/main.html" %}
 {% load static %}
 
+{% block title %}Communication Mode - Hand Gesture Communication App{% endblock %}
+
+{% block styles %}
+<style>
+    .response-hero {
+        background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+        color: white;
+        padding: 100px 0 60px;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .response-hero::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="dots" width="20" height="20" patternUnits="userSpaceOnUse"><circle cx="10" cy="10" r="1" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23dots)"/></svg>');
+        opacity: 0.3;
+    }
+    
+    .response-hero-content {
+        position: relative;
+        z-index: 2;
+    }
+    
+    .response-title {
+        font-size: 3rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+    
+    .response-subtitle {
+        font-size: 1.2rem;
+        opacity: 0.9;
+        margin-bottom: 2rem;
+    }
+    
+    .communication-container {
+        background: white;
+        border-radius: 20px;
+        padding: 2rem;
+        margin: 2rem 0;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+    }
+    
+    .video-section {
+        background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        border-radius: 15px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        text-align: center;
+    }
+    
+    .video-container {
+        max-width: 600px;
+        margin: 0 auto;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+    
+    .video-container video {
+        width: 100%;
+        height: 400px;
+        object-fit: cover;
+    }
+    
+    .communication-modes {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+        margin-bottom: 2rem;
+    }
+    
+    .mode-section {
+        background: white;
+        border-radius: 15px;
+        padding: 2rem;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        border: 2px solid #e2e8f0;
+        transition: all 0.3s ease;
+    }
+    
+    .mode-section:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+        border-color: #3b82f6;
+    }
+    
+    .mode-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #1e293b;
+        margin-bottom: 1.5rem;
+        text-align: center;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+    
+    .mode-icon {
+        font-size: 1.8rem;
+        color: #3b82f6;
+    }
+    
+    .voice-section {
+        border-left: 4px solid #10b981;
+    }
+    
+    .text-section {
+        border-left: 4px solid #f59e0b;
+    }
+    
+    .audio-player {
+        width: 100%;
+        margin-bottom: 1.5rem;
+        border-radius: 10px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+    
+    .recording-controls {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        margin-bottom: 1.5rem;
+        flex-wrap: wrap;
+    }
+    
+    .recording-btn {
+        padding: 0.75rem 1.5rem;
+        border: none;
+        border-radius: 50px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 1rem;
+    }
+    
+    .recording-btn-primary {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: white;
+    }
+    
+    .recording-btn-danger {
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        color: white;
+    }
+    
+    .recording-btn:disabled {
+        background: #94a3b8;
+        cursor: not-allowed;
+        transform: none;
+    }
+    
+    .recording-btn:not(:disabled):hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+    }
+    
+    .recording-status {
+        text-align: center;
+        padding: 1rem;
+        border-radius: 10px;
+        margin-bottom: 1rem;
+        font-weight: 600;
+        display: none;
+    }
+    
+    .recording-status.recording {
+        background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+        color: #92400e;
+        border: 2px solid #f59e0b;
+        display: block;
+        animation: pulse 1.5s infinite;
+    }
+    
+    .recording-status.processing {
+        background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+        color: #1e40af;
+        border: 2px solid #3b82f6;
+        display: block;
+    }
+    
+    .text-form {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .text-input-group {
+        display: flex;
+        gap: 1rem;
+        align-items: stretch;
+    }
+    
+    .text-input {
+        flex: 1;
+        padding: 0.75rem 1rem;
+        border: 2px solid #e2e8f0;
+        border-radius: 10px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+    
+    .text-input:focus {
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        outline: none;
+    }
+    
+    .submit-btn {
+        padding: 0.75rem 1.5rem;
+        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .submit-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(245, 158, 11, 0.3);
+    }
+    
+    .submit-btn:disabled {
+        background: #94a3b8;
+        cursor: not-allowed;
+        transform: none;
+    }
+    
+    .result-section {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 15px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        text-align: center;
+    }
+    
+    .result-title {
+        font-size: 1.3rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+    }
+    
+    .result-text {
+        font-size: 1.2rem;
+        font-weight: 600;
+        background: rgba(255, 255, 255, 0.2);
+        padding: 1rem 2rem;
+        border-radius: 10px;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        min-height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .history-section {
+        background: white;
+        border-radius: 15px;
+        padding: 2rem;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+    
+    .history-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #1e293b;
+        margin-bottom: 1.5rem;
+        text-align: center;
+    }
+    
+    .history-list {
+        max-height: 300px;
+        overflow-y: auto;
+        border: 2px solid #e2e8f0;
+        border-radius: 10px;
+        padding: 1rem;
+    }
+    
+    .history-item {
+        background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        padding: 1rem;
+        margin-bottom: 0.5rem;
+        border-radius: 8px;
+        border-left: 4px solid #3b82f6;
+        font-weight: 500;
+        color: #1e293b;
+        transition: all 0.3s ease;
+    }
+    
+    .history-item:hover {
+        transform: translateX(5px);
+        box-shadow: 0 4px 15px rgba(59, 130, 246, 0.2);
+    }
+    
+    .history-item:last-child {
+        margin-bottom: 0;
+    }
+    
+    .error-item {
+        border-left-color: #ef4444;
+        background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+        color: #dc2626;
+    }
+    
+    .instructions {
+        background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+        border: 2px solid #f59e0b;
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    .instructions-title {
+        color: #92400e;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .instructions-list {
+        color: #92400e;
+        margin: 0;
+        padding-left: 1.5rem;
+    }
+    
+    .instructions-list li {
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+    }
+    
+    @media (max-width: 768px) {
+        .response-title {
+            font-size: 2rem;
+        }
+        
+        .communication-modes {
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+        
+        .text-input-group {
+            flex-direction: column;
+        }
+        
+        .recording-controls {
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .recording-btn {
+            width: 100%;
+            max-width: 250px;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .response-hero {
+            padding: 80px 0 40px;
+        }
+        
+        .communication-container {
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+        
+        .video-container video {
+            height: 250px;
+        }
+        
+        .result-text {
+            font-size: 1rem;
+            padding: 0.75rem 1rem;
+        }
+    }
+</style>
+{% endblock %}
+
 {% block body %}
-<div class="mt-3 mb-3 page_title_holder">
-    <h1 class="page_title">Stream Response</h1>
+<!-- Response Hero Section -->
+<section class="response-hero">
+    <div class="container">
+        <div class="response-hero-content">
+            <h1 class="response-title">
+                <i class="fas fa-comments me-3"></i>
+                Communication Mode
+            </h1>
+            <p class="response-subtitle">
+                Communicate with deaf individuals through text and voice messages
+            </p>
+        </div>
+    </div>
+</section>
+
+<!-- Main Communication Container -->
+<div class="container">
+    <div class="communication-container">
+        <!-- Instructions -->
+        <div class="instructions">
+            <h3 class="instructions-title">
+                <i class="fas fa-info-circle"></i>
+                How to Use Communication Mode
+            </h3>
+            <ol class="instructions-list">
+                <li>Use the voice recording feature to speak your message</li>
+                <li>Or type your message in the text input field</li>
+                <li>Your message will be converted to sign language video</li>
+                <li>View the response video and recognized text below</li>
+            </ol>
+        </div>
+
+        <!-- Video Response Section -->
+        {% if video_url %}
+        <div class="video-section">
+            <h3 style="color: #1e293b; font-weight: 700; margin-bottom: 1rem;">
+                <i class="fas fa-play-circle me-2"></i>
+                Response Video
+            </h3>
+            <div class="video-container">
+                <video controls>
+                    <source src="{{ video_url }}" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Communication Modes -->
+        <div class="communication-modes">
+            <!-- Voice Recording Section -->
+            <div class="mode-section voice-section">
+                <h3 class="mode-title">
+                    <i class="fas fa-microphone mode-icon"></i>
+                    Voice Recording
+                </h3>
+                
+                <audio id="audioPlayback" class="audio-player" controls></audio>
+                
+                <div class="recording-status" id="recordingStatus"></div>
+                
+                <div class="recording-controls">
+                    <button id="startRecording" class="recording-btn recording-btn-primary">
+                        <i class="fas fa-microphone"></i>
+                        Start Recording
+                    </button>
+                    <button id="stopRecording" class="recording-btn recording-btn-danger" disabled>
+                        <i class="fas fa-stop"></i>
+                        Stop Recording
+                    </button>
+                </div>
+                
+                <p style="color: #64748b; font-size: 0.9rem; text-align: center; margin: 0;">
+                    Click "Start Recording" to begin, then speak your message clearly
+                </p>
+            </div>
+
+            <!-- Text Input Section -->
+            <div class="mode-section text-section">
+                <h3 class="mode-title">
+                    <i class="fas fa-keyboard mode-icon"></i>
+                    Text Input
+                </h3>
+                
+                <form id="textForm" class="text-form" action="{% url 'video_app:upload_text' %}" method="post">
+                    {% csrf_token %}
+                    <div class="text-input-group">
+                        <input type="text" id="textInput" name="text_input" 
+                               class="text-input" placeholder="Type your message here..." required>
+                        <button type="submit" class="submit-btn">
+                            <i class="fas fa-paper-plane"></i>
+                            Send
+                        </button>
+                    </div>
+                </form>
+                
+                <p style="color: #64748b; font-size: 0.9rem; text-align: center; margin: 0;">
+                    Type your message and click "Send" to convert to sign language
+                </p>
+            </div>
+        </div>
+
+        <!-- Result Section -->
+        <div class="result-section">
+            <h3 class="result-title">
+                <i class="fas fa-comment-dots me-2"></i>
+                Recognized Text
+            </h3>
+            <div class="result-text" id="resultText">
+                {% if error %}
+                    <span style="color: #fca5a5;">Error: {{ error }}</span>
+                {% else %}
+                    Waiting for your message...
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- History Section -->
+        <div class="history-section">
+            <h3 class="history-title">
+                <i class="fas fa-history me-2"></i>
+                Communication History
+            </h3>
+            <div class="history-list" id="historyList">
+                {% if error %}
+                    <div class="history-item error-item">Server Message: {{ error }}</div>
+                {% endif %}
+                {% for text in predicted_texts %}
+                    <div class="history-item">{{ text }}</div>
+                {% empty %}
+                    <div class="history-item">No messages yet. Start by recording a voice message or typing text above.</div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
 </div>
 
-{% if  video_url%}
-    <div class="response_vid">
-        <video style= "width: 80%; height: 400px;"  controls>
-            <source src="{{ video_url }}" type="video/mp4">
-            Your browser does not support the video tag.
-        </video>
-    </div>
-{% endif %}
-    <hr>
-    <div class="container_form">
-        <audio id="audioPlayback" controls></audio>
-        <div class="buttons_rec">
-            <button id="startRecording">Start Recording</button>
-            <button id="stopRecording" disabled>Stop Recording</button>
-        </div>
-        <hr>
-        <form action="{% url 'upload_text' %}" id="textForm" method="post">
-            {% csrf_token %}
-            <label for="textInput">Enter Text:</label>
-            <input type="text" id="textInput" name="text_input" required>
-            <button type="submit">Submit</button>
-        </form>
-        <div id="result">
-            <p >Text: <span id="result_span"></span></p>
-        </div>
-    </div>
-    
-    <hr>
-    <div class="mt-3 mb-3 page_title_holder">
-        <h1 class="page_title">Predicted Texts:</h1>
-    </div>
+<script>
+    // Global variables - will be defined in DOMContentLoaded
+    let mediaRecorder;
+    let audioChunks = [];
+    let startRecordingButton, stopRecordingButton, audioPlayback, resultText, recordingStatus, historyList, textForm, textInput;
 
-    <div class="list list-group list-group-flush">
-        <ul>
-            {% if error %}
-                <li class="list-group-item text-danger">Server Message: {{ error }}</li>
-            {% endif %}
-            {% for text in predicted_texts %}
-                <li class="list-group-item">{{ text }}</li>
-            {% endfor %}
-        </ul>
-    </div>
+    // Status management
+    function updateRecordingStatus(status, message) {
+        recordingStatus.className = `recording-status ${status}`;
+        recordingStatus.textContent = message;
+    }
 
-    <script>
-        let mediaRecorder;
-        let audioChunks = [];
+    function hideRecordingStatus() {
+        recordingStatus.style.display = 'none';
+    }
+
+    // Add message to history
+    function addToHistory(message, isError = false) {
+        const historyItem = document.createElement('div');
+        historyItem.className = `history-item ${isError ? 'error-item' : ''}`;
+        historyItem.textContent = message;
+        historyList.insertBefore(historyItem, historyList.firstChild);
+        
+        // Auto-scroll to show new message
+        historyItem.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    // Update result text
+    function updateResultText(text, isError = false) {
+        if (isError) {
+            resultText.innerHTML = `<span style="color: #fca5a5;">Error: ${text}</span>`;
+        } else {
+            resultText.textContent = text;
+        }
+    }
+
+    // Update video container
+    function updateVideoContainer(videoUrl) {
+        // Find or create video section
+        let videoSection = document.querySelector('.video-section');
+        if (!videoSection) {
+            // Create video section if it doesn't exist
+            videoSection = document.createElement('div');
+            videoSection.className = 'video-section';
+            videoSection.innerHTML = `
+                <h3 style="color: #1e293b; font-weight: 700; margin-bottom: 1rem;">
+                    <i class="fas fa-play-circle me-2"></i>
+                    Sign Language Video
+                </h3>
+                <div class="video-container" id="videoContainer">
+                    <p style="color: #64748b; padding: 2rem;">Video will appear here after processing</p>
+                </div>
+            `;
+            
+            // Insert after the result section
+            const resultSection = document.querySelector('.result-section');
+            resultSection.parentNode.insertBefore(videoSection, resultSection.nextSibling);
+        }
+        
+        const videoContainer = document.getElementById('videoContainer');
+        if (videoContainer && videoUrl) {
+            videoContainer.innerHTML = `
+                <video controls style="width: 100%; height: 400px; object-fit: cover;">
+                    <source src="${videoUrl}" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+            `;
+        }
+    }
+
+    // Voice recording functionality - will be moved to DOMContentLoaded
     
-        const startRecordingButton = document.getElementById('startRecording');
-        const stopRecordingButton = document.getElementById('stopRecording');
-        const audioPlayback = document.getElementById('audioPlayback');
-        const result_span = document.getElementById('result_span');
-    
-        startRecordingButton.addEventListener('click', async () => {
-          const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-          mediaRecorder = new MediaRecorder(stream);
-    
-          mediaRecorder.ondataavailable = event => {
-            audioChunks.push(event.data);
-          };
-    
-          mediaRecorder.onstop = () => {
-            const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
-            const audioUrl = URL.createObjectURL(audioBlob);
-            audioPlayback.src = audioUrl;
-            audioChunks = [];
-            sendVoiceNoteToServer(audioBlob);
-          };
-    
-          mediaRecorder.start();
-          startRecordingButton.disabled = true;
-          stopRecordingButton.disabled = false;
-        });
-    
-        stopRecordingButton.addEventListener('click', () => {
-          mediaRecorder.stop();
-          startRecordingButton.disabled = false;
-          stopRecordingButton.disabled = true;
-        });
-    
-        function sendVoiceNoteToServer(audioBlob) {
-          const formData = new FormData();
-          formData.append('voiceNote', audioBlob, 'voiceNote.wav');
-    
-          fetch('/upload_voice/', {
+    function sendVoiceNoteToServer(audioBlob, mimeType = 'audio/webm') {
+        // Determine file extension based on MIME type
+        let fileExtension = 'webm';
+        if (mimeType.includes('mp4')) {
+            fileExtension = 'mp4';
+        } else if (mimeType.includes('wav')) {
+            fileExtension = 'wav';
+        }
+        
+        const formData = new FormData();
+        formData.append('voiceNote', audioBlob, `voiceNote.${fileExtension}`);
+        
+        // Debug FormData contents
+        console.log('Voice FormData contents:');
+        for (let [key, value] of formData.entries()) {
+            console.log(`  ${key}:`, value);
+        }
+        
+                fetch('{% url "video_app:upload_voice" %}', {
             method: 'POST',
-            body: formData
-          })
-          .then(response => response.json())
-          .then(result => {
-
-            if(result.text) {
-                console.log(result.status, result.text);
-                result_span.innerHTML = result.text;
-
+            body: formData,
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken')
             }
-            else{
-                console.log(result);
+        })
+        .then(response => {
+            console.log('Voice response status:', response.status);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
             }
-          })
-          .catch(error => {
-            console.error('Error:', error);
-          });
-
-          
-        }
-      </script>
-
-
-
-    <script>
-        document.getElementById('textForm').addEventListener('submit', async function(event) {
-            event.preventDefault();
-        
-            const textInput = document.getElementById('textInput').value;
-            const textInputElement = document.getElementById('textInput');
-            const formData = new FormData();
-            formData.append('text_input', textInput);
-        
-            try {
-                const response = await fetch('/upload_text/', {
-                    method: 'POST',
-                    body: formData,
-                });
-        
-                const data = await response.json();        
-
-                if (data.statue) {
-                    result_span.innerHTML = data.text
-                    textInputElement.value = '';
-                } else {
-                    result_span.innerHTML = 'Failed to process the text';
-                }
-            } catch (error) {
-                console.error('Error:', error);
-            }
-        });
-
+            return response.json();
+        })
+        .then(result => {
+            console.log('Voice response data:', result);
+            hideRecordingStatus();
+            
+            if (result.success && result.text) {
+                updateResultText(result.text);
+                addToHistory(`Voice: ${result.text}`);
                 
+                // Update video if available
+                if (result.videosrc) {
+                    updateVideoContainer(result.videosrc);
+                }
+            } else if (result.text) {
+                updateResultText(result.text);
+                addToHistory(`Voice: ${result.text}`);
+                
+                // Update video if available
+                if (result.videosrc) {
+                    updateVideoContainer(result.videosrc);
+                }
+            } else {
+                updateResultText('Failed to process voice message', true);
+                addToHistory('Voice processing failed', true);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            hideRecordingStatus();
+            updateResultText('Network error occurred', true);
+            addToHistory('Voice processing error', true);
+        });
+    }
 
-        // Function to fetch the URL and refresh the page if the response is true
-        function checkAndRefresh() {
-            fetch('/detect_refresh/')
-                .then(response => response.json()) // Assuming the response is in JSON format
-                .then(data => {
-                    if (data.statue === true) {
-                        // If response is true, refresh the page
-                        location.reload();
-                    }
-                })
-                .catch(error => console.error('Error:', error));
-        }
+    // Text form functionality - will be added in DOMContentLoaded
 
-        function getCookie(name) {
-            let cookieValue = null;
-            if (document.cookie && document.cookie !== '') {
-                const cookies = document.cookie.split(';');
-                for (let i = 0; i < cookies.length; i++) {
-                    const cookie = cookies[i].trim();
-                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                        break;
-                    }
+    // Cookie helper function
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
                 }
             }
-            return cookieValue;
         }
+        return cookieValue;
+    }
 
+    // Keyboard shortcuts
+    document.addEventListener('keydown', function(event) {
+        // Ctrl/Cmd + Enter to submit text form
+        if ((event.ctrlKey || event.metaKey) && event.key === 'Enter') {
+            if (document.activeElement === textInput) {
+                textForm.dispatchEvent(new Event('submit'));
+            }
+        }
+        
+        // Space bar to start/stop recording (when not in input field)
+        if (event.key === ' ' && document.activeElement !== textInput) {
+            event.preventDefault();
+            if (startRecordingButton.disabled === false) {
+                startRecordingButton.click();
+            } else if (stopRecordingButton.disabled === false) {
+                stopRecordingButton.click();
+            }
+        }
+    });
 
-        // Call checkAndRefresh function initially
-        checkAndRefresh();
-        setInterval(checkAndRefresh, 2000); // 2000 milliseconds = 2 seconds
-    </script>
+    // Auto-focus text input and visual feedback - will be moved to DOMContentLoaded
+
+    // Add hover effects to mode sections
+    document.querySelectorAll('.mode-section').forEach(section => {
+        section.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-5px) scale(1.02)';
+        });
+        
+        section.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0) scale(1)';
+        });
+    });
+
+    // Initialize page
+    document.addEventListener('DOMContentLoaded', function() {
+        // Define DOM elements
+        startRecordingButton = document.getElementById('startRecording');
+        stopRecordingButton = document.getElementById('stopRecording');
+        audioPlayback = document.getElementById('audioPlayback');
+        resultText = document.getElementById('resultText');
+        recordingStatus = document.getElementById('recordingStatus');
+        historyList = document.getElementById('historyList');
+        textForm = document.getElementById('textForm');
+        textInput = document.getElementById('textInput');
+        
+        // Add text form submission event listener
+        if (textForm) {
+            // Add button click handler for manual form submission
+            const submitBtn = textForm.querySelector('.submit-btn');
+            if (submitBtn) {
+                submitBtn.addEventListener('click', function(event) {
+                    // Manually trigger form submission if needed
+                    if (textForm) {
+                        textForm.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+                    }
+                });
+            }
+            
+            textForm.addEventListener('submit', async function(event) {
+                event.preventDefault();
+                
+                const textValue = textInput.value.trim();
+                
+                if (!textValue) {
+                    updateResultText('Please enter some text', true);
+                    return;
+                }
+                
+                const submitBtn = textForm.querySelector('.submit-btn');
+                const originalText = submitBtn.innerHTML;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+                submitBtn.disabled = true;
+                
+                const formData = new FormData();
+                formData.append('text_input', textValue);
+                
+                try {
+                    const response = await fetch('{% url "video_app:upload_text" %}', {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-CSRFToken': getCookie('csrftoken')
+                        }
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+
+                    const data = await response.json();
+                    
+                    if (data.success || data.statue) {
+                        const resultText = data.text || data.message || 'Text processed successfully';
+                        updateResultText(resultText);
+                        addToHistory(`Text: ${textValue}`);
+                        
+                        // Update video if available
+                        if (data.videosrc) {
+                            updateVideoContainer(data.videosrc);
+                        }
+                        
+                        textInput.value = '';
+                    } else {
+                        updateResultText('Failed to process the text', true);
+                        addToHistory(`Text processing failed: ${textValue}`, true);
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    updateResultText('Network error occurred', true);
+                    addToHistory(`Text processing error: ${textValue}`, true);
+                } finally {
+                    submitBtn.innerHTML = originalText;
+                    submitBtn.disabled = false;
+                }
+            });
+        }
+        
+        // Add voice recording event listeners
+        if (startRecordingButton && stopRecordingButton) {
+            startRecordingButton.addEventListener('click', async () => {
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ 
+                        audio: {
+                            echoCancellation: true,
+                            noiseSuppression: true,
+                            sampleRate: 44100
+                        } 
+                    });
+                    
+                    // Try different MIME types for better compatibility
+                    let mimeType = 'audio/webm;codecs=opus';
+                    if (!MediaRecorder.isTypeSupported(mimeType)) {
+                        mimeType = 'audio/webm';
+                    }
+                    if (!MediaRecorder.isTypeSupported(mimeType)) {
+                        mimeType = 'audio/mp4';
+                    }
+                    if (!MediaRecorder.isTypeSupported(mimeType)) {
+                        mimeType = 'audio/wav';
+                    }
+                    
+                    mediaRecorder = new MediaRecorder(stream, {
+                        mimeType: mimeType
+                    });
+            
+                    audioChunks = [];
+                    
+                    mediaRecorder.ondataavailable = event => {
+                        if (event.data.size > 0) {
+                            audioChunks.push(event.data);
+                        }
+                    };
+                    
+                    mediaRecorder.onstop = () => {
+                        const audioBlob = new Blob(audioChunks, { type: mimeType });
+                        const audioUrl = URL.createObjectURL(audioBlob);
+                        audioPlayback.src = audioUrl;
+                        sendVoiceNoteToServer(audioBlob, mimeType);
+                
+                        // Stop all tracks to release microphone
+                        stream.getTracks().forEach(track => track.stop());
+                    };
+                    
+                    mediaRecorder.start();
+                    startRecordingButton.disabled = true;
+                    stopRecordingButton.disabled = false;
+                    
+                    updateRecordingStatus('recording', '🎤 Recording... Speak clearly into your microphone');
+                    
+                } catch (error) {
+                    console.error('Error accessing microphone:', error);
+                    updateRecordingStatus('error', '❌ Unable to access microphone. Please check permissions.');
+                    setTimeout(hideRecordingStatus, 3000);
+                }
+            });
+            
+            stopRecordingButton.addEventListener('click', () => {
+                if (mediaRecorder && mediaRecorder.state === 'recording') {
+                    mediaRecorder.stop();
+                    startRecordingButton.disabled = false;
+                    stopRecordingButton.disabled = true;
+                    
+                    updateRecordingStatus('processing', '🔄 Processing your voice message...');
+                }
+            });
+        }
+        
+        // Auto-focus text input and add visual feedback
+        if (textInput) {
+            textInput.focus();
+            
+            // Add some visual feedback for form interactions
+            textInput.addEventListener('focus', function() {
+                this.parentElement.style.transform = 'scale(1.02)';
+            });
+            
+            textInput.addEventListener('blur', function() {
+                this.parentElement.style.transform = 'scale(1)';
+            });
+        }
+    });
+</script>
 </body>
 {% endblock body %}
 

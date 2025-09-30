@@ -1,0 +1,482 @@
+{% extends "video_app/main.html" %}
+{% load static %}
+
+{% block title %}Real-time Gesture Recognition{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/hand-pose-detection"></script>
+<script src="https://cdn.jsdelivr.net/npm/recordrtc@5.6.1"></script>
+{% endblock %}
+
+{% block styles %}
+<style>
+    .gesture-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 20px;
+        padding: 20px;
+    }
+    
+    .video-section {
+        display: flex;
+        gap: 20px;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+    
+    .video-container {
+        position: relative;
+        border: 2px solid #ddd;
+        border-radius: 8px;
+        overflow: hidden;
+    }
+    
+    .video-container video, .video-container canvas {
+        display: block;
+        max-width: 100%;
+        height: auto;
+    }
+    
+    .status-indicator {
+        padding: 10px 20px;
+        border-radius: 20px;
+        font-weight: bold;
+        text-align: center;
+        margin: 10px 0;
+        transition: all 0.3s ease;
+    }
+    
+    .status-reading { background-color: #e3f2fd; color: #1976d2; }
+    .status-recording { background-color: #ffebee; color: #d32f2f; }
+    .status-processing { background-color: #fff3e0; color: #f57c00; }
+    .status-success { background-color: #e8f5e8; color: #388e3c; }
+    .status-error { background-color: #ffebee; color: #d32f2f; }
+    
+    .gesture-list {
+        max-height: 300px;
+        overflow-y: auto;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 10px;
+    }
+    
+    .gesture-item {
+        padding: 8px 12px;
+        margin: 5px 0;
+        background-color: #f5f5f5;
+        border-radius: 4px;
+        border-left: 4px solid #2196f3;
+    }
+    
+    .gesture-item .gesture-type {
+        font-weight: bold;
+        color: #1976d2;
+    }
+    
+    .gesture-item .confidence {
+        font-size: 0.9em;
+        color: #666;
+    }
+    
+    .gesture-item .timestamp {
+        font-size: 0.8em;
+        color: #999;
+    }
+    
+    .connection-status {
+        position: fixed;
+        top: 10px;
+        right: 10px;
+        padding: 5px 10px;
+        border-radius: 15px;
+        font-size: 0.8em;
+        font-weight: bold;
+    }
+    
+    .connection-connected { background-color: #4caf50; color: white; }
+    .connection-disconnected { background-color: #f44336; color: white; }
+    .connection-connecting { background-color: #ff9800; color: white; }
+    
+    .controls {
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+        margin: 20px 0;
+    }
+    
+    .btn {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-weight: bold;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-primary { background-color: #2196f3; color: white; }
+    .btn-success { background-color: #4caf50; color: white; }
+    .btn-danger { background-color: #f44336; color: white; }
+    .btn:disabled { background-color: #ccc; cursor: not-allowed; }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="gesture-container">
+    <h1 class="page_title">Real-time Hand Gesture Recognition</h1>
+    
+    <!-- Connection Status -->
+    <div id="connectionStatus" class="connection-status connection-disconnected">
+        Disconnected
+    </div>
+    
+    <!-- Status Indicator -->
+    <div id="statusIndicator" class="status-indicator status-reading">
+        Initializing...
+    </div>
+    
+    <!-- Video Section -->
+    <div class="video-section">
+        <div class="video-container">
+            <video id="video" width="640" height="480" autoplay muted></video>
+            <canvas id="canvas" width="640" height="480"></canvas>
+        </div>
+        
+        <div class="video-container">
+            <video id="responseVideo" width="640" height="480" controls></video>
+        </div>
+    </div>
+    
+    <!-- Controls -->
+    <div class="controls">
+        <button id="startBtn" class="btn btn-primary">Start Camera</button>
+        <button id="stopBtn" class="btn btn-danger" disabled>Stop Camera</button>
+        <button id="clearBtn" class="btn btn-success">Clear History</button>
+    </div>
+    
+    <!-- Gesture History -->
+    <div style="width: 100%; max-width: 800px;">
+        <h3>Recent Gestures</h3>
+        <div id="gestureList" class="gesture-list">
+            <div style="text-align: center; color: #999; padding: 20px;">
+                No gestures detected yet
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+class GestureRecognitionApp {
+    constructor() {
+        this.video = document.getElementById('video');
+        this.canvas = document.getElementById('canvas');
+        this.responseVideo = document.getElementById('responseVideo');
+        this.statusIndicator = document.getElementById('statusIndicator');
+        this.connectionStatus = document.getElementById('connectionStatus');
+        this.gestureList = document.getElementById('gestureList');
+        
+        this.startBtn = document.getElementById('startBtn');
+        this.stopBtn = document.getElementById('stopBtn');
+        this.clearBtn = document.getElementById('clearBtn');
+        
+        this.model = null;
+        this.recorder = null;
+        this.recording = false;
+        this.websocket = null;
+        this.sessionId = this.getSessionId();
+        
+        this.setupEventListeners();
+        this.connectWebSocket();
+    }
+    
+    getSessionId() {
+        // Get session ID from URL or create a new one
+        const pathParts = window.location.pathname.split('/');
+        const sessionIndex = pathParts.indexOf('sessions');
+        if (sessionIndex !== -1 && pathParts[sessionIndex + 1]) {
+            return pathParts[sessionIndex + 1];
+        }
+        return 'default-session';
+    }
+    
+    setupEventListeners() {
+        this.startBtn.addEventListener('click', () => this.startCamera());
+        this.stopBtn.addEventListener('click', () => this.stopCamera());
+        this.clearBtn.addEventListener('click', () => this.clearHistory());
+    }
+    
+    connectWebSocket() {
+        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+        const wsUrl = `${protocol}//${window.location.host}/ws/gesture-session/${this.sessionId}/`;
+        
+        this.websocket = new WebSocket(wsUrl);
+        
+        this.websocket.onopen = () => {
+            this.updateConnectionStatus('connected');
+            this.updateStatus('Connected to server', 'status-reading');
+        };
+        
+        this.websocket.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+            this.handleWebSocketMessage(data);
+        };
+        
+        this.websocket.onclose = () => {
+            this.updateConnectionStatus('disconnected');
+            this.updateStatus('Disconnected from server', 'status-error');
+            // Attempt to reconnect after 3 seconds
+            setTimeout(() => this.connectWebSocket(), 3000);
+        };
+        
+        this.websocket.onerror = (error) => {
+            console.error('WebSocket error:', error);
+            this.updateConnectionStatus('disconnected');
+        };
+    }
+    
+    handleWebSocketMessage(data) {
+        switch (data.type) {
+            case 'gesture_result':
+                this.handleGestureResult(data);
+                break;
+            case 'processing_status':
+                this.updateStatus(data.message, 'status-processing');
+                break;
+            case 'error':
+                this.updateStatus(`Error: ${data.message}`, 'status-error');
+                break;
+            case 'session_data':
+                this.loadSessionData(data.data);
+                break;
+        }
+    }
+    
+    handleGestureResult(data) {
+        this.updateStatus(`Recognized: ${data.gesture_type} (${(data.confidence * 100).toFixed(1)}%)`, 'status-success');
+        this.addGestureToList(data);
+        
+        if (data.video_url) {
+            this.responseVideo.src = data.video_url;
+        }
+        
+        // Reset to reading state after 3 seconds
+        setTimeout(() => {
+            this.updateStatus('Ready for next gesture', 'status-reading');
+        }, 3000);
+    }
+    
+    addGestureToList(data) {
+        const gestureItem = document.createElement('div');
+        gestureItem.className = 'gesture-item';
+        gestureItem.innerHTML = `
+            <div class="gesture-type">${data.gesture_type}</div>
+            <div class="confidence">Confidence: ${(data.confidence * 100).toFixed(1)}%</div>
+            <div class="timestamp">${new Date().toLocaleTimeString()}</div>
+        `;
+        
+        // Remove "no gestures" message if it exists
+        const noGesturesMsg = this.gestureList.querySelector('div[style*="text-align: center"]');
+        if (noGesturesMsg) {
+            noGesturesMsg.remove();
+        }
+        
+        this.gestureList.insertBefore(gestureItem, this.gestureList.firstChild);
+        
+        // Limit to 20 items
+        const items = this.gestureList.querySelectorAll('.gesture-item');
+        if (items.length > 20) {
+            items[items.length - 1].remove();
+        }
+    }
+    
+    loadSessionData(data) {
+        if (data.recent_gestures && data.recent_gestures.length > 0) {
+            this.gestureList.innerHTML = '';
+            data.recent_gestures.forEach(gesture => {
+                this.addGestureToList({
+                    gesture_type: gesture.gesture_type,
+                    confidence: gesture.confidence,
+                    created_at: gesture.created_at
+                });
+            });
+        }
+    }
+    
+    updateConnectionStatus(status) {
+        this.connectionStatus.className = `connection-status connection-${status}`;
+        this.connectionStatus.textContent = status.charAt(0).toUpperCase() + status.slice(1);
+    }
+    
+    updateStatus(message, className) {
+        this.statusIndicator.textContent = message;
+        this.statusIndicator.className = `status-indicator ${className}`;
+    }
+    
+    async startCamera() {
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+            this.video.srcObject = stream;
+            
+            this.startBtn.disabled = true;
+            this.stopBtn.disabled = false;
+            
+            await this.loadHandDetectionModel();
+            this.startHandDetection();
+            
+            this.updateStatus('Camera started - Ready for gestures', 'status-reading');
+        } catch (error) {
+            console.error('Error starting camera:', error);
+            this.updateStatus('Error starting camera', 'status-error');
+        }
+    }
+    
+    stopCamera() {
+        if (this.video.srcObject) {
+            this.video.srcObject.getTracks().forEach(track => track.stop());
+            this.video.srcObject = null;
+        }
+        
+        this.startBtn.disabled = false;
+        this.stopBtn.disabled = true;
+        
+        this.updateStatus('Camera stopped', 'status-reading');
+    }
+    
+    async loadHandDetectionModel() {
+        try {
+            this.model = await handPoseDetection.createDetector(
+                handPoseDetection.SupportedModels.MediaPipeHands,
+                {
+                    runtime: 'tfjs',
+                    modelType: 'full'
+                }
+            );
+            console.log('Hand detection model loaded');
+        } catch (error) {
+            console.error('Error loading hand detection model:', error);
+            throw error;
+        }
+    }
+    
+    startHandDetection() {
+        const detectHands = async () => {
+            if (!this.model || !this.video.videoWidth) {
+                requestAnimationFrame(detectHands);
+                return;
+            }
+            
+            try {
+                const predictions = await this.model.estimateHands(this.video);
+                this.drawHandLandmarks(predictions);
+                
+                if (predictions.length > 0 && !this.recording) {
+                    this.startRecording();
+                }
+            } catch (error) {
+                console.error('Error detecting hands:', error);
+            }
+            
+            requestAnimationFrame(detectHands);
+        };
+        
+        detectHands();
+    }
+    
+    drawHandLandmarks(predictions) {
+        const ctx = this.canvas.getContext('2d');
+        ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        
+        predictions.forEach(prediction => {
+            const landmarks = prediction.keypoints;
+            landmarks.forEach(landmark => {
+                const { x, y } = landmark;
+                ctx.beginPath();
+                ctx.arc(x, y, 5, 0, 2 * Math.PI);
+                ctx.fillStyle = 'red';
+                ctx.fill();
+            });
+        });
+    }
+    
+    startRecording() {
+        if (this.recording) return;
+        
+        this.recording = true;
+        this.updateStatus('Recording gesture...', 'status-recording');
+        
+        const stream = this.video.srcObject;
+        this.recorder = new RecordRTC(stream, { type: 'video' });
+        this.recorder.startRecording();
+        
+        // Record for 6 seconds
+        setTimeout(() => {
+            this.recorder.stopRecording(() => {
+                const blob = this.recorder.getBlob();
+                this.sendVideoToServer(blob);
+                this.recording = false;
+            });
+        }, 6000);
+    }
+    
+    sendVideoToServer(blob) {
+        this.updateStatus('Processing gesture...', 'status-processing');
+        
+        const formData = new FormData();
+        formData.append('video', blob, 'gesture.mp4');
+        
+        fetch(`/api/sessions/${this.sessionId}/gestures/`, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': this.getCookie('csrftoken')
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Send video data via WebSocket for real-time processing
+                this.websocket.send(JSON.stringify({
+                    type: 'gesture_video',
+                    video_data: Array.from(new Uint8Array(blob))
+                }));
+            } else {
+                this.updateStatus(`Error: ${data.error}`, 'status-error');
+            }
+        })
+        .catch(error => {
+            console.error('Error sending video:', error);
+            this.updateStatus('Error processing video', 'status-error');
+        });
+    }
+    
+    clearHistory() {
+        this.gestureList.innerHTML = `
+            <div style="text-align: center; color: #999; padding: 20px;">
+                No gestures detected yet
+            </div>
+        `;
+    }
+    
+    getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.startsWith(name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+}
+
+// Initialize the app when the page loads
+document.addEventListener('DOMContentLoaded', () => {
+    new GestureRecognitionApp();
+});
+</script>
+{% endblock %}

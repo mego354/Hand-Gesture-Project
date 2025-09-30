@@ -1,0 +1,382 @@
+{% extends "video_app/main.html" %}
+{% load static %}
+
+{% block title %}Hand Gesture Recognition System{% endblock %}
+
+{% block styles %}
+<style>
+    .hero-section {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 80px 0;
+        text-align: center;
+    }
+    
+    .hero-title {
+        font-size: 3.5rem;
+        font-weight: bold;
+        margin-bottom: 20px;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+    
+    .hero-subtitle {
+        font-size: 1.3rem;
+        margin-bottom: 40px;
+        opacity: 0.9;
+    }
+    
+    .feature-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 30px;
+        padding: 60px 20px;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+    
+    .feature-card {
+        background: white;
+        border-radius: 15px;
+        padding: 40px 30px;
+        text-align: center;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        border: 1px solid #e0e0e0;
+    }
+    
+    .feature-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+    }
+    
+    .feature-icon {
+        font-size: 4rem;
+        margin-bottom: 20px;
+        color: #667eea;
+    }
+    
+    .feature-title {
+        font-size: 1.5rem;
+        font-weight: bold;
+        margin-bottom: 15px;
+        color: #333;
+    }
+    
+    .feature-description {
+        color: #666;
+        line-height: 1.6;
+        margin-bottom: 25px;
+    }
+    
+    .btn {
+        display: inline-block;
+        padding: 15px 30px;
+        border: none;
+        border-radius: 50px;
+        text-decoration: none;
+        font-weight: bold;
+        font-size: 1.1rem;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        text-align: center;
+    }
+    
+    .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+    
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+    }
+    
+    .btn-secondary {
+        background: #f8f9fa;
+        color: #667eea;
+        border: 2px solid #667eea;
+    }
+    
+    .btn-secondary:hover {
+        background: #667eea;
+        color: white;
+    }
+    
+    .stats-section {
+        background: #f8f9fa;
+        padding: 60px 20px;
+        text-align: center;
+    }
+    
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 40px;
+        max-width: 800px;
+        margin: 0 auto;
+    }
+    
+    .stat-item {
+        padding: 20px;
+    }
+    
+    .stat-number {
+        font-size: 3rem;
+        font-weight: bold;
+        color: #667eea;
+        margin-bottom: 10px;
+    }
+    
+    .stat-label {
+        color: #666;
+        font-size: 1.1rem;
+    }
+    
+    .cta-section {
+        background: #333;
+        color: white;
+        padding: 80px 20px;
+        text-align: center;
+    }
+    
+    .cta-title {
+        font-size: 2.5rem;
+        margin-bottom: 20px;
+    }
+    
+    .cta-description {
+        font-size: 1.2rem;
+        margin-bottom: 40px;
+        opacity: 0.9;
+    }
+    
+    .btn-group {
+        display: flex;
+        gap: 20px;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+    
+    @media (max-width: 768px) {
+        .hero-title {
+            font-size: 2.5rem;
+        }
+        
+        .hero-subtitle {
+            font-size: 1.1rem;
+        }
+        
+        .feature-grid {
+            grid-template-columns: 1fr;
+            padding: 40px 20px;
+        }
+        
+        .btn-group {
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .btn {
+            width: 100%;
+            max-width: 300px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="container">
+        <h1 class="hero-title">Hand Gesture Recognition</h1>
+        <p class="hero-subtitle">
+            Advanced AI-powered sign language recognition system for real-time communication
+        </p>
+        <div class="btn-group">
+            <a href="{% url 'video_app:session_create' %}" class="btn btn-primary">
+                Start New Session
+            </a>
+            <a href="{% url 'video_app:session_list' %}" class="btn btn-secondary">
+                View Sessions
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="feature-grid">
+    <div class="feature-card">
+        <div class="feature-icon">🎥</div>
+        <h3 class="feature-title">Real-time Recognition</h3>
+        <p class="feature-description">
+            Advanced computer vision technology recognizes hand gestures in real-time using 
+            state-of-the-art machine learning models.
+        </p>
+        <a href="{% url 'video_app:session_create' %}" class="btn btn-primary">
+            Try It Now
+        </a>
+    </div>
+    
+    <div class="feature-card">
+        <div class="feature-icon">📝</div>
+        <h3 class="feature-title">Text to Sign</h3>
+        <p class="feature-description">
+            Convert written text into sign language videos automatically. 
+            Perfect for creating educational content and accessibility features.
+        </p>
+        <a href="{% url 'video_app:text_to_sign' %}" class="btn btn-primary">
+            Convert Text
+        </a>
+    </div>
+    
+    <div class="feature-card">
+        <div class="feature-icon">🎤</div>
+        <h3 class="feature-title">Voice to Sign</h3>
+        <p class="feature-description">
+            Transform spoken words into sign language using advanced speech recognition 
+            and natural language processing.
+        </p>
+        <a href="{% url 'video_app:voice_to_sign' %}" class="btn btn-primary">
+            Record Voice
+        </a>
+    </div>
+    
+    <div class="feature-card">
+        <div class="feature-icon">📊</div>
+        <h3 class="feature-title">Session Management</h3>
+        <p class="feature-description">
+            Organize and track your gesture recognition sessions with detailed 
+            analytics and history management.
+        </p>
+        <a href="{% url 'video_app:session_list' %}" class="btn btn-primary">
+            View Sessions
+        </a>
+    </div>
+    
+    <div class="feature-card">
+        <div class="feature-icon">🔍</div>
+        <h3 class="feature-title">Gesture Search</h3>
+        <p class="feature-description">
+            Search through your gesture history with powerful filtering options 
+            by date, type, and confidence level.
+        </p>
+        <a href="{% url 'video_app:gesture_list' %}" class="btn btn-primary">
+            Search Gestures
+        </a>
+    </div>
+    
+    <div class="feature-card">
+        <div class="feature-icon">⚡</div>
+        <h3 class="feature-title">WebSocket Technology</h3>
+        <p class="feature-description">
+            Real-time communication using modern WebSocket technology for 
+            instant feedback and seamless user experience.
+        </p>
+        <a href="{% url 'video_app:session_create' %}" class="btn btn-primary">
+            Experience Real-time
+        </a>
+    </div>
+</section>
+
+<!-- Stats Section -->
+<section class="stats-section">
+    <div class="container">
+        <h2 style="margin-bottom: 50px; color: #333;">System Capabilities</h2>
+        <div class="stats-grid">
+            <div class="stat-item">
+                <div class="stat-number">4</div>
+                <div class="stat-label">Supported Gestures</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">99%</div>
+                <div class="stat-label">Recognition Accuracy</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">&lt;1s</div>
+                <div class="stat-label">Processing Time</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">24/7</div>
+                <div class="stat-label">System Availability</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Call to Action Section -->
+<section class="cta-section">
+    <div class="container">
+        <h2 class="cta-title">Ready to Get Started?</h2>
+        <p class="cta-description">
+            Join thousands of users who are already using our advanced hand gesture recognition system
+        </p>
+        <div class="btn-group">
+            <a href="{% url 'video_app:session_create' %}" class="btn btn-primary">
+                Create New Session
+            </a>
+            <a href="{% url 'video_app:gesture_list' %}" class="btn btn-secondary">
+                Browse Gestures
+            </a>
+        </div>
+    </div>
+</section>
+
+<script>
+// Add some interactive animations
+document.addEventListener('DOMContentLoaded', function() {
+    // Animate stats on scroll
+    const observerOptions = {
+        threshold: 0.5,
+        rootMargin: '0px 0px -100px 0px'
+    };
+    
+    const observer = new IntersectionObserver(function(entries) {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                animateNumbers(entry.target);
+            }
+        });
+    }, observerOptions);
+    
+    document.querySelectorAll('.stat-number').forEach(stat => {
+        observer.observe(stat);
+    });
+    
+    function animateNumbers(element) {
+        const finalNumber = element.textContent;
+        const isPercentage = finalNumber.includes('%');
+        const isTime = finalNumber.includes('s');
+        const isHours = finalNumber.includes('/');
+        
+        let startNumber = 0;
+        let endNumber = parseInt(finalNumber.replace(/[^\d]/g, ''));
+        
+        if (isHours) {
+            endNumber = 24;
+        }
+        
+        const duration = 2000;
+        const increment = endNumber / (duration / 16);
+        
+        const timer = setInterval(() => {
+            startNumber += increment;
+            if (startNumber >= endNumber) {
+                startNumber = endNumber;
+                clearInterval(timer);
+            }
+            
+            let displayNumber = Math.floor(startNumber);
+            if (isPercentage) {
+                element.textContent = displayNumber + '%';
+            } else if (isTime) {
+                element.textContent = '<' + displayNumber + 's';
+            } else if (isHours) {
+                element.textContent = displayNumber + '/7';
+            } else {
+                element.textContent = displayNumber;
+            }
+        }, 16);
+    }
+});
+</script>
+{% endblock %}
